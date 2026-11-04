@@ -4,6 +4,8 @@ Halaman landing **aina**: AI assistant dan companion di Windows yang duduk di se
 
 Ini halaman statis biasa (`index.html`, `style.css`, `script.js`, dan gambar di `img/`), tanpa build.
 
+Desainnya mengikuti `aina Landing.dc.html` dari paket handoff desain aina 1.0. Animasi memakai GSAP 3.12 + ScrollTrigger dari CDN jsDelivr. Tanpa GSAP halaman tetap terbaca, hanya demonya diam.
+
 ## Lihat di komputer sendiri
 
 Buka `index.html` langsung di browser, atau jalankan server statis dari folder ini:
