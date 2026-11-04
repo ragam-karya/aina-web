@@ -1,10 +1,15 @@
 // The landing page on Cloudflare (static assets only): deploy from this folder with `npx wrangler deploy`.
-// Live at https://aina-landing.faisalmashuri16.workers.dev (a custom domain can be added in the dashboard).
+// Live at https://aina.ai.id (and www), plus https://aina-landing.faisalmashuri16.workers.dev.
 // The old https://badi-landing… address redirects here (a separate redirect-only Worker).
 {
   "name": "aina-landing",
   "compatibility_date": "2026-10-12",
   "assets": {
     "directory": "."
-  }
+  },
+  // Custom domains: Cloudflare creates the DNS records and certificates itself (the zone must be on Cloudflare).
+  "routes": [
+    { "pattern": "aina.ai.id", "custom_domain": true },
+    { "pattern": "www.aina.ai.id", "custom_domain": true }
+  ]
 }
