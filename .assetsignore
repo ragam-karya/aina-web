@@ -4,3 +4,9 @@ README.md
 .gitignore
 .git
 .github
+node_modules
+.wrangler
+package.json
+package-lock.json
+.dev.vars
+.env*
