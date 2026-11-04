@@ -3,360 +3,452 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>aina untuk Windows</title>
-  <meta name="description" content="aina adalah AI assistant dan companion yang paham layarmu. aina duduk di sebelah kursor, melihat isi layar, dan memandumu di aplikasi seperti DaVinci Resolve, Figma, atau After Effects dengan menunjuk langsung ke elemen UI-nya.">
-  <meta name="theme-color" content="#2B8AFF">
+  <title>aina · Teman di sebelah kursormu</title>
+  <meta name="description" content="Tahan dua tombol dan bicara. aina melihat layarmu, menjawab dengan suara, lalu menunjuk tepat di tempatnya. Untuk Windows, berbahasa Indonesia.">
+  <meta name="theme-color" content="#061334">
   <meta property="og:title" content="aina · Teman di sebelah kursormu">
-  <meta property="og:description" content="aina melihat layarmu dan memandumu di aplikasi apa pun dengan menunjuk langsung ke tombolnya. Tanya, dikte, atau perintahkan Gmail, Notion, dan Kalender dengan suara.">
+  <meta property="og:description" content="aina melihat layarmu, menjawab dengan suara, lalu menunjuk tepat di tombolnya. Notch gratis, tanpa akun.">
   <link rel="icon" href="img/favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&family=Caveat:wght@600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,600&family=JetBrains+Mono:wght@400;500;600&family=Caveat:wght@600;700&family=Noto+Serif:ital,wght@0,400;1,400&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-cloud="https://badi-cloud.faisalmashuri16.workers.dev">
-<header class="top">
-  <div class="wrap">
-    <a class="brand" href="#top" aria-label="aina beranda"><img class="logo" src="img/aina-logo.png" alt="aina" width="114" height="30"></a>
-    <nav class="links" aria-label="Utama">
-      <a href="#fitur">Fitur</a>
-      <a href="#harga">Harga</a>
-      <a href="#masukan">Masukan</a>
-    </nav>
-    <a class="btn btn-primary btn-small" href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Langganan sekarang</a>
+<div class="page">
+
+<!-- ======================= TICKER ======================= -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" data-ticker>
+    <span>Tanya layarmu. <i>Tanpa</i> pindah jendela.</span><span>Ditunjukkan, <i>bukan</i> dijelaskan.</span><span>Selalu <i>seizinmu.</i></span><span>Notch gratis, <i>tanpa</i> akun.</span>
+    <span>Tanya layarmu. <i>Tanpa</i> pindah jendela.</span><span>Ditunjukkan, <i>bukan</i> dijelaskan.</span><span>Selalu <i>seizinmu.</i></span><span>Notch gratis, <i>tanpa</i> akun.</span>
   </div>
+</div>
+
+<!-- ======================= HEADER ======================= -->
+<header class="top">
+  <nav class="wrap nav" aria-label="Utama">
+    <a class="brand" href="#top" aria-label="aina beranda"><img src="img/aina-logo.png" alt="aina" height="24"></a>
+    <div class="nav-links">
+      <a href="#detail">Fitur</a>
+      <a href="#notch">Notch</a>
+      <a href="#privasi">Privasi</a>
+      <a href="#harga">Harga</a>
+    </div>
+    <span class="ver">v1.0.0</span>
+    <a class="btn btn-dark btn-sm" href="#unduh">Unduh</a>
+  </nav>
 </header>
 
-<main id="top">
-  <!-- ======================= HERO ======================= -->
-  <section class="hero">
-    <div class="logo-tile" role="img" aria-label="Logo aina"><img src="img/aina-mark.png" alt="" width="64" height="64"></div>
-
-    <a class="version-pill" href="https://badi-cloud.faisalmashuri16.workers.dev/download" data-cloud-path="/download">
-      Versi terbaru <strong>1</strong>
-      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </a>
-
-    <div class="eyebrow-dot"><span aria-hidden="true"></span>AI assistant &amp; companion yang paham layarmu</div>
-    <h1>Teman di sebelah kursormu.</h1>
-    <p class="lede">aina melihat isi layarmu dan memandumu di aplikasi seperti DaVinci Resolve, Figma, atau After Effects, dengan menunjuk langsung ke tombol yang kamu cari.</p>
-
-    <div class="cta-row">
-      <a class="btn btn-primary btn-big" href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Langganan sekarang</a>
-      <a class="btn btn-ghost btn-big" href="#fitur">Lihat fiturnya</a>
+<main>
+<!-- ======================= HERO + DEMO ======================= -->
+<section id="top" class="hero">
+  <div class="wrap hero-head">
+    <a data-in class="news-pill" href="#detail"><span>Baru di 1.0.0</span>Notch pintar dan Sprite</a>
+    <h1 data-in>Teman di sebelah <i>kursormu.</i></h1>
+    <p data-in class="lede">Tahan dua tombol dan bicara. aina melihat layarmu, menjawab dengan suara, lalu menunjuk tepat di tempatnya. Untuk Windows, berbahasa Indonesia.</p>
+    <div data-in class="cta-row">
+      <a class="btn btn-primary btn-lg" href="#unduh">Unduh untuk Windows</a>
+      <a class="btn btn-light btn-lg" href="#detail">Lihat fiturnya</a>
     </div>
-    <div class="keys">Tahan <kbd>Ctrl</kbd> + <kbd>Alt</kbd>, atau ucapkan “Hey aina”</div>
-  </section>
+    <span data-in class="fine">10 kredit gratis untuk mencoba · notch gratis selamanya</span>
+  </div>
 
-  <!-- ======================= FEATURES (one demo, five use cases) ======================= -->
-  <div class="glow">
-    <section id="fitur" class="features">
-      <div class="pills" role="group" aria-label="Pilih contoh penggunaan">
-        <button type="button" data-case="1" aria-pressed="true">Belajar software</button>
-        <button type="button" data-case="2" aria-pressed="false">Jawab soal</button>
-        <button type="button" data-case="3" aria-pressed="false">Guide pekerjaan</button>
-        <button type="button" data-case="4" aria-pressed="false">Cek email penting</button>
-        <button type="button" data-case="5" aria-pressed="false">Catat ide di Notion</button>
-      </div>
+  <div data-in class="wrap demo-wrap">
+    <div class="demo-tabs" role="group" aria-label="Pilih contoh">
+      <button type="button" data-tab="0"><span class="fill" data-tabfill></span><span class="n">1</span>Tahan &amp; tanya</button>
+      <button type="button" data-tab="1"><span class="fill" data-tabfill></span><span class="n">2</span>Ditunjukkan</button>
+      <button type="button" data-tab="2"><span class="fill" data-tabfill></span><span class="n">3</span>Dikerjakan</button>
+    </div>
 
-      <div class="glass">
-        <div class="demo" role="img" id="demo" aria-label="Contoh: aina menjawab di DaVinci Resolve">
-          <div class="win">
-            <div class="win-bar"><i></i><i></i><i></i><span id="demoWindow">Video-Peluncuran — DaVinci Resolve</span></div>
-            <div class="win-body">
-              <span class="pointer"><svg aria-hidden="true" width="20" height="22" viewBox="0 0 14 16"><path d="M1 1l12 6.5-5.4 1.3L5 15 1 1z"/></svg><span id="demoPointer">Efek Warna di sini</span></span>
-              <div class="reply">
-                <div class="reply-status"><span></span><b id="demoStatus">Menjawab</b></div>
-                <div class="reply-q" id="demoQuestion">Gimana caranya bikin warna videonya lebih hangat?</div>
-                <div class="reply-a" id="demoAnswer">Buka tab Warna, lalu geser Temperature ke kanan. Aku tunjukkan ya.</div>
-              </div>
+    <div class="frame">
+      <!-- Scene art: sized in cqw so it scales with the frame. -->
+      <div data-demo class="scene" style="aspect-ratio:1000/570" role="img" aria-label="Animasi: aina mendengar pertanyaan, menunjuk slider Temperature, lalu minta izin sebelum upload ke Drive">
+        <div style="position:absolute;left:3.5cqw;right:3.5cqw;top:5.4cqw;bottom:5.6cqw;border-radius:.9cqw;background:#1b1e24;overflow:hidden;display:grid;grid-template-rows:3cqw minmax(0,1fr) 8.4cqw;box-shadow:0 2cqw 5cqw rgba(6,19,52,.3)">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0 1.4cqw;border-bottom:.1cqw solid #2a2f38;color:#8e9bb0;font-size:1.15cqw;font-weight:600"><span>Video-Peluncuran · editor video</span><span style="display:flex;gap:1.4cqw"><span>Edit</span><span style="color:#eef2f8">Warna</span><span>Audio</span><span>Ekspor</span></span></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 26cqw;min-height:0">
+            <div style="position:relative;margin:1.2cqw;border-radius:.5cqw;overflow:hidden;background:repeating-linear-gradient(45deg,#2a2f38 0 .8cqw,#23272f .8cqw 1.6cqw)">
+              <div data-warm style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,170,90,.55),rgba(255,120,40,.25));opacity:0"></div>
+              <span class="mono" style="position:absolute;left:1cqw;bottom:1cqw;font-size:1.05cqw;color:#8e9bb0;background:rgba(0,0,0,.35);padding:.3cqw .7cqw;border-radius:.4cqw">pratinjau video</span>
             </div>
-          </div>
-        </div>
-
-        <div class="panels">
-          <!-- 1 · Ask the screen -->
-          <div class="panel" data-panel="1">
-            <div class="panel-head">
-              <div class="kicker">Fitur · Tanya layar</div>
-              <h2>Satu tarikan napas, dari pertanyaan sampai ditunjukkan.</h2>
-              <p>Pill hitam di tengah atas layar memberi tahu apa yang sedang aina lakukan. Kamu selalu tahu kapan aina mendengar, dan <kbd>Esc</kbd> selalu menghentikannya.</p>
-            </div>
-            <div class="grid g230">
-              <div class="card">
-                <div class="step"><span class="num">1</span><span class="phase"><i class="listen"></i>Mendengar</span></div>
-                <h3>Tahan dan bicara</h3>
-                <p>Suara hanya dikirim selama tombol ditahan. Sambil bicara, kamu boleh melingkari atau menunjuk sesuatu dengan mouse.</p>
-              </div>
-              <div class="card">
-                <div class="step"><span class="num">2</span><span class="phase"><i></i>Melihat area</span></div>
-                <h3>aina melihat yang kamu maksud</h3>
-                <p>Hanya layar tempat kursor atau tandamu berada, ditambah potongan tajam area yang kamu lingkari.</p>
-              </div>
-              <div class="card">
-                <div class="step"><span class="num">3</span><span class="phase"><i></i>Berpikir</span></div>
-                <h3>Jawaban mulai disusun</h3>
-                <p>Kalimat pertama sudah diucapkan sementara kalimat berikutnya masih ditulis, jadi kamu tidak menunggu jawaban utuh.</p>
-              </div>
-              <div class="card">
-                <div class="step"><span class="num">4</span><span class="phase"><i></i>Menjawab</span></div>
-                <h3>Bicara sambil menunjuk</h3>
-                <p>Setiap kalimat datang bersama gambarnya. Klik target yang ditunjuk, dan aina memberi langkah berikutnya.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2 · Voice and dictation -->
-          <div class="panel" data-panel="2" hidden>
-            <div class="panel-head">
-              <div class="kicker">Fitur · Bicara &amp; dikte</div>
-              <h2>Tahan tombol, atau ucapkan saja.</h2>
-              <p>Tiga cara memakai suaramu, tergantung kamu sedang di mana.</p>
-            </div>
-            <div class="grid g280">
-              <div class="card roomy">
-                <div class="combo"><kbd>Ctrl</kbd>+<kbd>Alt</kbd></div>
-                <h3>Tahan untuk bicara</h3>
-                <p>Cocok di kantor atau saat rapat. Suaramu hanya dikirim selama tombol ditahan.</p>
-              </div>
-              <div class="card roomy">
-                <div class="hand">“Hey aina”</div>
-                <h3>Ucapkan saja</h3>
-                <p>Panggil aina dengan suara dan ngobrol lepas tangan. Kamu boleh memotongnya kapan saja.</p>
-              </div>
-              <div class="card roomy">
-                <div class="combo"><kbd>Ctrl</kbd>+<kbd>Win</kbd></div>
-                <h3>Dikte teks</h3>
-                <p>Bicara, dan teksnya muncul di aplikasi yang sedang aktif, sudah dirapikan.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3 · Highlights -->
-          <div class="panel" data-panel="3" hidden>
-            <div class="panel-head">
-              <div class="kicker">Fitur unggulan</div>
-              <h2>Asisten yang melihat, menunjuk, dan mendengar.</h2>
-            </div>
-            <div class="grid g420">
-              <div class="card tight">
-                <div class="tag">01 · Paham layarmu</div>
-                <h3>Melihat apa yang kamu lihat</h3>
-                <p>Tidak perlu menjelaskan isi layar. aina melihat aplikasi yang sedang kamu pakai, dan kamu boleh melingkari bagian yang dimaksud sambil bicara.</p>
-              </div>
-              <div class="card tight">
-                <div class="tag">02 · Menunjuk ke elemen UI</div>
-                <h3>Dipandu, bukan dijelaskan</h3>
-                <p>Kursor biru terbang ke tombol yang tepat, ditemani sorotan dan tulisan tangan, lalu aina memandu klik demi klik.</p>
-              </div>
-              <div class="card tight">
-                <div class="tag warm">03 · Tahan atau ucapkan</div>
-                <h3>Tanya, atau dikte teks</h3>
-                <p>Tahan tombol untuk bicara, atau ucapkan "Hey aina". Pakai suaramu untuk bertanya, atau untuk mengetik di aplikasi mana pun.</p>
-              </div>
-              <div class="card tight">
-                <div class="tag">04 · Terhubung ke alat kerjamu</div>
-                <h3>Gmail, Notion, dan Kalender lewat suara</h3>
-                <p>Cek email, catat di Notion, atau jadwalkan meeting tanpa membuka aplikasinya. aina bertanya dulu sebelum mengirim apa pun.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 4 · Work apps -->
-          <div class="panel" data-panel="4" hidden>
-            <div class="panel-head">
-              <div class="kicker">Fitur · Aplikasi kerja</div>
-              <h2>Gmail, Notion, dan Kalender, cukup dengan suara.</h2>
-              <p>Sambungkan akunmu sekali, lalu perintahkan dengan suara. Membaca tidak perlu izin. Sebelum mengirim, membuat, atau mengubah sesuatu, aina selalu bertanya dulu.</p>
-            </div>
-            <div class="grid g420 apps">
-              <div>
-                <div class="switches" role="img" aria-label="Contoh saklar per aplikasi di Settings">
-                  <div class="sw-row"><span class="sw on"></span><b>Gmail</b><span class="state on">Aktif</span></div>
-                  <div class="sw-row"><span class="sw on"></span><b>Notion</b><span class="state on">Aktif</span></div>
-                  <div class="sw-row"><span class="sw on"></span><b>Google Calendar</b><span class="state on">Aktif</span></div>
-                  <div class="sw-row"><span class="sw"></span><b>Slack</b><span class="state">Tersambung, mati</span></div>
+            <div style="border-left:.1cqw solid #2a2f38;padding:1.6cqw;display:flex;flex-direction:column;gap:1.8cqw;color:#c9d2de">
+              <span style="font-size:1.3cqw;font-weight:700;color:#eef2f8">Warna</span>
+              <div style="display:flex;flex-direction:column;gap:.8cqw">
+                <div style="display:flex;justify-content:space-between;font-size:1.15cqw"><span>Temperature</span><span data-tempval style="font-variant-numeric:tabular-nums;color:#8e9bb0">5600 K</span></div>
+                <div style="position:relative;height:.5cqw;border-radius:.3cqw;background:linear-gradient(90deg,#5aa9ff,#d9dde3,#ffb26b)">
+                  <span data-knob style="position:absolute;top:50%;left:45%;width:1.6cqw;height:1.6cqw;margin:-.8cqw 0 0 -.8cqw;border-radius:50%;background:#fff;box-shadow:0 .2cqw .6cqw rgba(0,0,0,.4)"></span>
+                  <svg data-marker viewBox="0 0 220 60" preserveAspectRatio="none" style="position:absolute;left:-2cqw;top:-2.4cqw;width:calc(100% + 4cqw);height:5.4cqw;overflow:visible;pointer-events:none"><path d="M18 28 C 14 10, 80 4, 140 6 C 196 8, 214 22, 206 36 C 196 52, 90 58, 34 50 C 10 46, 8 34, 26 22" fill="none" stroke="#2b8aff" stroke-width="3.5" stroke-linecap="round" vector-effect="non-scaling-stroke" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" opacity="0"/></svg>
                 </div>
-                <p class="fine">Juga tersedia: Google Drive, Docs, Sheets, Tasks, Outlook, Teams, Linear, Jira, ClickUp, HubSpot, Salesforce, Dropbox, GitHub, dan Slack. Koneksinya lewat Composio: login dan data aplikasimu melewati server mereka, dan tidak disimpan di PC-mu.</p>
               </div>
-              <div class="says">
-                <div><q>Cek email penting hari ini</q></div>
-                <div><q>Catat ide ini di Notion</q></div>
-                <div><q>Jadwalkan sync tim besok jam sepuluh</q></div>
-              </div>
+              <div style="display:flex;flex-direction:column;gap:.8cqw;opacity:.5"><div style="display:flex;justify-content:space-between;font-size:1.15cqw"><span>Tint</span><span>0</span></div><div style="position:relative;height:.5cqw;border-radius:.3cqw;background:#3a404b"><span style="position:absolute;top:50%;left:50%;width:1.6cqw;height:1.6cqw;margin:-.8cqw 0 0 -.8cqw;border-radius:50%;background:#c9d2de"></span></div></div>
+              <div style="display:flex;flex-direction:column;gap:.8cqw;opacity:.5"><div style="display:flex;justify-content:space-between;font-size:1.15cqw"><span>Saturasi</span><span>50</span></div><div style="position:relative;height:.5cqw;border-radius:.3cqw;background:#3a404b"><span style="position:absolute;top:50%;left:50%;width:1.6cqw;height:1.6cqw;margin:-.8cqw 0 0 -.8cqw;border-radius:50%;background:#c9d2de"></span></div></div>
             </div>
           </div>
-
-          <!-- 5 · Permission and privacy -->
-          <div class="panel" data-panel="5" hidden>
-            <div class="panel-head">
-              <div class="kicker">Fitur · Izin dan privasi</div>
-              <h2>Melihat layarmu, tanpa menyimpannya.</h2>
-            </div>
-            <div class="grid g420 ledger">
-              <div>
-                <h3>Hanya di memori, hilang setelah dipakai</h3>
-                <ul class="rings">
-                  <li>Screenshot layarmu</li>
-                  <li>Rekaman suaramu</li>
-                  <li>Audio jawaban aina</li>
-                </ul>
-              </div>
-              <div>
-                <h3>Selalu seizinmu</h3>
-                <ul class="dots">
-                  <li>Bertanya lewat suara sebelum mengubah file atau mengirim sesuatu</li>
-                  <li>Saklar on/off untuk setiap aplikasi kerja</li>
-                  <li><span><kbd>Esc</kbd> selalu menghentikan aina</span></li>
-                </ul>
-              </div>
-            </div>
-            <p class="honest"><b>Supaya jelas:</b> aina bukan AI lokal. Saat kamu bertanya, screenshot dan suaramu dikirim ke penyedia AI (Anthropic, OpenAI, dan ElevenLabs untuk suara) supaya bisa dijawab. Yang aina janjikan adalah tidak menyimpannya di komputermu.</p>
+          <div style="border-top:.1cqw solid #2a2f38;padding:1.1cqw 1.4cqw;display:flex;flex-direction:column;gap:.6cqw;position:relative">
+            <div style="display:flex;gap:.4cqw;height:1.9cqw"><span style="width:22%;border-radius:.4cqw;background:#3f6fb5"></span><span style="width:30%;border-radius:.4cqw;background:#3f6fb5"></span><span style="width:18%;border-radius:.4cqw;background:#3f6fb5"></span></div>
+            <div style="display:flex;gap:.4cqw;height:1.9cqw"><span style="width:52%;border-radius:.4cqw;background:#3c8a68"></span><span style="width:26%;border-radius:.4cqw;background:#3c8a68"></span></div>
+            <span style="position:absolute;left:38%;top:.6cqw;bottom:.6cqw;width:.2cqw;background:#ff5a64"></span>
           </div>
         </div>
-      </div>
-    </section>
-  </div>
 
-  <!-- ======================= REVIEWS =======================
-       Hidden until there are real quotes: fill in each card (quote, name, role), then remove `hidden`
-       here and add <a href="#ulasan">Ulasan</a> to the nav. Never publish made-up reviews. -->
-  <section id="ulasan" class="reviews" hidden>
-    <div class="reviews-head">
-      <div class="kicker">Ulasan</div>
-      <h2>Kata mereka yang sudah memakai aina.</h2>
+        <div style="position:absolute;left:0;right:0;bottom:0;height:4.2cqw;background:rgba(246,247,249,.85);border-top:.1cqw solid rgba(6,19,52,.08);display:flex;align-items:center;justify-content:center;gap:.7cqw">
+          <span style="width:2.6cqw;height:2.6cqw;border-radius:.6cqw;background:rgba(6,19,52,.09)"></span><span style="width:2.6cqw;height:2.6cqw;border-radius:.6cqw;background:rgba(6,19,52,.16)"></span><span style="width:2.6cqw;height:2.6cqw;border-radius:.6cqw;background:rgba(6,19,52,.09)"></span>
+          <img src="img/aina-mark.png" alt="" style="position:absolute;right:6cqw;width:1.6cqw;height:1.6cqw">
+          <span style="position:absolute;right:1.6cqw;font-size:1.1cqw;color:#151a22">09.41</span>
+        </div>
+
+        <div data-notch class="notch">
+          <span class="ear l"></span><span class="ear r"></span>
+          <div style="position:absolute;inset:0;overflow:hidden;border-radius:inherit">
+            <div data-ind style="position:absolute;top:.8cqw;right:1.4cqw;display:flex;gap:.4cqw;opacity:0"><span data-ind-mic style="width:.6cqw;height:.6cqw;border-radius:50%;background:#ff8a3d;box-shadow:0 0 .6cqw #ff8a3d"></span><span style="width:.6cqw;height:.6cqw;border-radius:50%;background:#5aa9ff;box-shadow:0 0 .6cqw #5aa9ff"></span></div>
+            <div data-turn style="position:absolute;left:1.6cqw;right:1.6cqw;top:1.3cqw;display:flex;flex-direction:column;gap:.9cqw;opacity:0">
+              <div style="display:flex;align-items:center;gap:1.1cqw">
+                <div class="orb" style="width:3.6cqw;height:3.6cqw"></div>
+                <div style="display:flex;flex-direction:column;gap:.3cqw;flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:.8cqw;height:1.8cqw">
+                    <span data-phase style="font-size:1.35cqw;font-weight:700;color:#ff8a3d">Mendengar</span>
+                    <span data-wave class="wave"><span></span><span></span><span></span><span></span><span></span></span>
+                    <span data-think class="think" style="opacity:0"><span></span><span></span><span></span></span>
+                  </div>
+                  <span data-quote style="font-size:1.2cqw;color:#8e9bb0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
+                </div>
+              </div>
+              <span data-answer style="font-size:1.6cqw;line-height:1.45;padding-left:4.7cqw;min-height:2.3cqw"></span>
+            </div>
+            <div data-ask style="position:absolute;left:1.8cqw;right:1.8cqw;top:1.5cqw;display:flex;flex-direction:column;gap:1.2cqw;opacity:0">
+              <span style="font-size:1.25cqw;font-weight:700;color:#ff8a3d">Minta izin</span>
+              <span style="font-size:1.65cqw;line-height:1.4">Aku mau upload Video-Peluncuran.mp4 ke Drive. Boleh?</span>
+              <div style="display:flex;gap:.6cqw;justify-content:flex-end">
+                <span class="nbtn">Jangan</span>
+                <span class="nbtn">Boleh semua</span>
+                <span data-yes class="nbtn yes">Boleh</span>
+              </div>
+            </div>
+            <div data-up style="position:absolute;inset:0;display:flex;align-items:center;gap:1cqw;padding:0 1.6cqw;opacity:0">
+              <span data-up-label style="font-size:1.25cqw;font-weight:600;white-space:nowrap">Drive · 0%</span>
+              <div style="flex:1;height:.4cqw;border-radius:.2cqw;background:rgba(255,255,255,.14)"><div data-up-bar style="height:100%;width:0;border-radius:.2cqw;background:#5aa9ff"></div></div>
+            </div>
+            <div data-done style="position:absolute;inset:0;display:flex;align-items:center;gap:1cqw;padding:0 1.6cqw;opacity:0">
+              <span style="width:2.2cqw;height:2.2cqw;border-radius:50%;background:rgba(61,220,151,.16);color:#3ddc97;display:flex;align-items:center;justify-content:center;font-size:1.3cqw;font-weight:800">✓</span>
+              <span style="font-size:1.3cqw;font-weight:600;flex:1">Tersimpan di Drive</span><span style="font-size:1.2cqw;font-weight:600;color:#5aa9ff">Buka link</span>
+            </div>
+          </div>
+        </div>
+
+        <div data-scan style="position:absolute;left:3.5cqw;right:3.5cqw;top:5.4cqw;height:.3cqw;background:linear-gradient(90deg,transparent,#5aa9ff,transparent);box-shadow:0 0 2cqw #2b8aff;opacity:0;z-index:4"></div>
+        <img data-acur class="acur" src="img/aina-mark.png" alt="" style="left:50%;top:3cqw;opacity:0">
+        <div data-tip style="position:absolute;left:0;top:0;z-index:6;opacity:0;padding:.6cqw 1.1cqw;border-radius:.3cqw 1.2cqw 1.2cqw 1.2cqw;background:#0058F5;color:#fff;font-size:1.25cqw;font-weight:700;white-space:nowrap;box-shadow:0 .6cqw 1.8cqw rgba(0,88,245,.45)">Geser ke kanan</div>
+        <svg data-ucur viewBox="0 0 22 28" style="position:absolute;left:62%;top:84%;width:2cqw;height:2.6cqw;z-index:7;filter:drop-shadow(0 .2cqw .3cqw rgba(0,0,0,.35))"><path d="M2 2 L2 22 L7.5 17 L11.5 26 L15 24.5 L11 15.5 L18.5 15.5 Z" fill="#fff" stroke="#061334" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <div data-keys style="position:absolute;left:5cqw;bottom:7.4cqw;display:flex;align-items:center;gap:.8cqw;padding:.8cqw 1.2cqw;border-radius:1.2cqw;background:rgba(255,255,255,.94);box-shadow:0 1cqw 3cqw rgba(6,19,52,.25);opacity:0;z-index:7">
+          <span data-key class="kkey">Ctrl</span>
+          <span style="font-size:1.3cqw;color:#5f6b7a">+</span>
+          <span data-key class="kkey">Alt</span>
+          <span style="font-size:1.2cqw;color:#5f6b7a;font-weight:600">ditahan</span>
+        </div>
+      </div>
+      <div class="frame-foot">
+        <span class="live"><span class="dot"></span><span data-caption>Tanya layar · tahan Ctrl + Alt</span></span>
+        <span class="nowrap">Esc selalu menghentikan</span>
+      </div>
     </div>
-    <div class="reviews-rail">
-      <div class="review-track">
-        <figure class="review"><blockquote>“[Kutipan ulasan asli pengguna tentang belajar software dengan aina.]”</blockquote><figcaption><span class="avatar"></span><span><b>[Nama pengguna]</b><small>[Peran / pekerjaan]</small></span></figcaption></figure>
-        <figure class="review"><blockquote>“[Kutipan ulasan asli pengguna tentang menjawab soal bersama aina.]”</blockquote><figcaption><span class="avatar"></span><span><b>[Nama pengguna]</b><small>[Peran / pekerjaan]</small></span></figcaption></figure>
-        <figure class="review"><blockquote>“[Kutipan ulasan asli pengguna tentang aina memandu klik demi klik di aplikasi kerja.]”</blockquote><figcaption><span class="avatar"></span><span><b>[Nama pengguna]</b><small>[Peran / pekerjaan]</small></span></figcaption></figure>
-        <figure class="review"><blockquote>“[Kutipan ulasan asli pengguna tentang cek email penting atau mencatat ide di Notion.]”</blockquote><figcaption><span class="avatar"></span><span><b>[Nama pengguna]</b><small>[Peran / pekerjaan]</small></span></figcaption></figure>
-        <figure class="review"><blockquote>“[Kutipan ulasan asli pengguna tentang memakai “Hey aina” secara lepas tangan.]”</blockquote><figcaption><span class="avatar"></span><span><b>[Nama pengguna]</b><small>[Peran / pekerjaan]</small></span></figcaption></figure>
+  </div>
+</section>
+
+<!-- ======================= BELAJAR ======================= -->
+<section id="belajar" class="sec sec-belajar">
+  <div class="wrap stack-40">
+    <div data-rv class="head-split">
+      <div class="head">
+        <span class="kicker">Belajar</span>
+        <h2>Soal sulit? aina menjelaskan sambil <i>mencoret.</i></h2>
+      </div>
+      <div class="head-side">
+        <span class="body">Tunjuk soalnya dan tanya dengan suara. Setiap kalimat datang bersama coretannya di layar, satu langkah dalam satu waktu.</span>
+        <button type="button" class="btn-replay" data-replay><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Putar ulang</button>
       </div>
     </div>
-  </section>
 
-  <!-- ======================= PRICING (same rows as Catalog::defaults in badi-cloud-core) ======================= -->
-  <div class="pricing-bg">
-    <div class="pricing-glow" aria-hidden="true"></div>
-    <div class="pricing-grid" aria-hidden="true"></div>
-    <section id="harga" class="pricing">
-      <div class="kicker">Harga</div>
-      <h2>Pilih cara pakai aina.</h2>
-      <p class="plan-note" id="planNote">Langganan bulanan: kredit termurah, siklus 30 hari. Sisa kredit hangus di akhir siklus.</p>
+    <div data-rv class="frame">
+      <div data-math class="scene" style="aspect-ratio:1000/560" role="img" aria-label="Animasi: aina menjelaskan integral substitusi sambil mencoret soal">
+        <div style="position:absolute;left:14cqw;right:14cqw;top:5.4cqw;bottom:0;background:#fff;border-radius:.8cqw .8cqw 0 0;box-shadow:0 2cqw 5cqw -2cqw rgba(6,19,52,.3);overflow:hidden">
+          <div style="height:3.4cqw;display:flex;align-items:center;justify-content:space-between;padding:0 2cqw;border-bottom:.1cqw solid #eef1f5;font-size:1.2cqw;color:#5f6b7a;font-weight:600"><span>Latihan-Kalkulus-Bab4.pdf</span><span class="mono" style="font-size:1.1cqw">hal. 12 / 30</span></div>
+          <div style="position:absolute;left:5cqw;right:5cqw;top:6.4cqw;display:flex;flex-direction:column;gap:1.6cqw;font-family:'Noto Serif',Georgia,serif;color:#151a22">
+            <span style="font-size:1.5cqw;color:#5f6b7a">Soal 3. Tentukan hasil integral berikut.</span>
+            <div style="display:flex;align-items:baseline;gap:1cqw;font-size:4.2cqw;padding-left:6cqw;margin-top:3.4cqw">
+              <span style="font-size:5.6cqw;line-height:1">∫</span>
+              <span style="position:relative;font-style:italic">2x
+                <svg viewBox="0 0 100 60" preserveAspectRatio="none" style="position:absolute;left:-1.6cqw;top:-1cqw;width:calc(100% + 3.2cqw);height:calc(100% + 2cqw);overflow:visible;pointer-events:none"><path data-mp d="M20 30 C 16 8, 70 2, 88 18 C 100 34, 76 56, 40 54 C 14 52, 2 36, 24 16" fill="none" stroke="#2b8aff" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" opacity="0"/></svg>
+                <span data-mw class="hand" style="position:absolute;left:-2cqw;top:calc(100% + 5.4cqw);font-style:normal;font-size:3.4cqw">du = 2x dx</span>
+                <svg viewBox="0 0 40 80" style="position:absolute;left:30%;top:calc(100% + .4cqw);width:2.6cqw;height:5cqw;overflow:visible;pointer-events:none"><path data-mp d="M20 4 C 16 30, 26 50, 20 72 M10 60 L20 74 L30 60" fill="none" stroke="#2b8aff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" opacity="0"/></svg>
+              </span>
+              <span>·</span>
+              <span>cos(<span data-x2 style="position:relative;font-style:italic">x²
+                <svg viewBox="0 0 100 60" preserveAspectRatio="none" style="position:absolute;left:-1.6cqw;top:-1cqw;width:calc(100% + 3.2cqw);height:calc(100% + 2cqw);overflow:visible;pointer-events:none"><path data-mp d="M20 30 C 16 8, 70 2, 88 18 C 100 34, 76 56, 40 54 C 14 52, 2 36, 24 16" fill="none" stroke="#2b8aff" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" opacity="0"/></svg>
+                <span data-mw class="hand" style="position:absolute;left:-1cqw;bottom:calc(100% + 1.4cqw);font-style:normal;font-size:3.4cqw">u = x²</span>
+              </span>)</span>
+              <span style="font-style:italic">dx</span>
+            </div>
+            <div style="position:relative;display:flex;flex-direction:column;gap:1.2cqw;margin:6.6cqw 0 0 34cqw;font-family:Caveat,cursive;font-weight:700;font-size:3.6cqw;color:#0058F5;line-height:1.1">
+              <span data-mw class="hand">= ∫ cos(u) du</span>
+              <span data-mw class="hand">= sin(u) + C</span>
+              <span style="position:relative;align-self:flex-start">
+                <span data-mw class="hand" style="display:block;padding:0 1cqw">= sin(x²) + C</span>
+                <svg viewBox="0 0 200 60" preserveAspectRatio="none" style="position:absolute;left:-1cqw;top:-.8cqw;width:calc(100% + 2cqw);height:calc(100% + 1.6cqw);overflow:visible;pointer-events:none"><path data-mp d="M6 8 L 194 4 L 196 54 L 4 56 Z" fill="none" stroke="#FE6D01" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" opacity="0"/></svg>
+              </span>
+            </div>
+          </div>
+        </div>
 
-      <div class="pills" role="group" aria-label="Jenis paket">
-        <button type="button" data-plan="sub" aria-pressed="true">Langganan</button>
-        <button type="button" data-plan="topup" aria-pressed="false">Top-Up kredit</button>
+        <div data-mnotch class="notch">
+          <span class="ear l"></span><span class="ear r"></span>
+          <div data-mturn style="position:absolute;left:1.6cqw;right:1.6cqw;top:1.2cqw;display:flex;align-items:flex-start;gap:1.1cqw;opacity:0">
+            <div class="orb" style="width:3.4cqw;height:3.4cqw"></div>
+            <div style="display:flex;flex-direction:column;gap:.4cqw;flex:1;min-width:0">
+              <span data-mphase style="font-size:1.3cqw;font-weight:700;color:#ff8a3d">Mendengar</span>
+              <span data-mtext style="font-size:1.55cqw;line-height:1.4"></span>
+            </div>
+          </div>
+        </div>
+        <img data-mcur class="acur" src="img/aina-mark.png" alt="" style="left:50%;top:4cqw;opacity:0">
       </div>
-
-      <div class="plans" data-plans="sub">
-        <div class="plan">
-          <div class="plan-name">Free Trial</div>
-          <div class="price"><div><b>Rp0</b></div><span>10 kredit gratis</span></div>
-          <p>Coba aina dulu, gratis 10 kredit.</p>
-          <a class="plan-btn" href="https://badi-cloud.faisalmashuri16.workers.dev/download" data-cloud-path="/download">Coba gratis</a>
-          <ul class="checks"><li>10 kredit gratis</li></ul>
-        </div>
-        <div class="plan">
-          <div class="plan-name">Basic</div>
-          <div class="price"><div><b>Rp49.000</b><small>/bln</small></div><span>85 kredit</span></div>
-          <p>Langganan bulanan untuk pemakaian rutin.</p>
-          <a class="plan-btn" href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Langganan</a>
-          <ul class="checks"><li>85 kredit per siklus</li><li>Rp576/kredit</li><li>Siklus 30 hari</li></ul>
-        </div>
-        <div class="plan hot">
-          <div class="plan-name">Pro <span class="badge">Best Value</span></div>
-          <div class="price"><div><b>Rp129.000</b><small>/bln</small></div><span>225 kredit</span></div>
-          <p>Kredit lebih banyak untuk pemakaian harian.</p>
-          <a class="plan-btn" href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Langganan</a>
-          <ul class="checks"><li>225 kredit per siklus</li><li>Rp573/kredit</li><li>Siklus 30 hari</li></ul>
-        </div>
+      <div class="frame-foot">
+        <span class="live"><span class="dot"></span>Panduan · coretan marker sinkron dengan suara</span>
+        <span class="nowrap">Contoh soal</span>
       </div>
-
-      <div class="plans" data-plans="topup" hidden>
-        <div class="plan">
-          <div class="plan-name">Top-Up Small</div>
-          <div class="price"><div><b>Rp49.000</b><small>/pack</small></div><span>65 kredit</span></div>
-          <p>Kredit tambahan yang tidak pernah hangus.</p>
-          <a class="plan-btn" href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Beli</a>
-          <ul class="checks"><li>65 kredit</li><li>Rp754/kredit</li><li>Tidak pernah hangus</li></ul>
-        </div>
-        <div class="plan">
-          <div class="plan-name">Top-Up Medium</div>
-          <div class="price"><div><b>Rp149.000</b><small>/pack</small></div><span>210 kredit</span></div>
-          <p>Kredit tambahan yang tidak pernah hangus.</p>
-          <a class="plan-btn" href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Beli</a>
-          <ul class="checks"><li>210 kredit</li><li>Rp710/kredit</li><li>Tidak pernah hangus</li></ul>
-        </div>
-        <div class="plan hot">
-          <div class="plan-name">Top-Up Large <span class="badge">Paling hemat</span></div>
-          <div class="price"><div><b>Rp199.000</b><small>/pack</small></div><span>300 kredit</span></div>
-          <p>Kredit tambahan yang tidak pernah hangus.</p>
-          <a class="plan-btn" href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Beli</a>
-          <ul class="checks"><li>300 kredit</li><li>Rp663/kredit</li><li>Tidak pernah hangus</li></ul>
-        </div>
-      </div>
-
-      <p class="enterprise"><b>Enterprise:</b> seat &amp; kuota custom untuk tim dan perusahaan. <a href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Hubungi Sales</a></p>
-    </section>
+    </div>
   </div>
+</section>
 
-  <!-- ======================= FEEDBACK ======================= -->
-  <section id="masukan" class="feedback">
-    <form id="feedbackForm" novalidate>
-      <div class="feedback-head">
-        <h2>Bantu kami membangun aina</h2>
-        <p>Ceritakan pengalamanmu memakai aina. Masukanmu menentukan fitur apa yang kami kerjakan berikutnya.</p>
+<!-- ======================= FITUR (scrolly) ======================= -->
+<section id="detail" class="sec sec-detail">
+  <div class="wrap">
+    <div data-rv class="head head-gap">
+      <span class="kicker">Fitur</span>
+      <h2>Detail di <i>layarmu.</i></h2>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-list">
+        <div class="detail" data-detail="0">
+          <span class="d-n">01 <span>Notch</span></span>
+          <span class="d-title">Selalu tahu apa yang aina lakukan.</span>
+          <span class="d-body">Pill hitam di tengah atas layar menampilkan Mendengar, Melihat area, Berpikir, dan Menjawab. Titik oranye menyala saat mic aktif.</span>
+        </div>
+        <div class="detail" data-detail="1">
+          <span class="d-n">02 <span>Kursor biru</span></span>
+          <span class="d-title">Ditunjukkan, bukan dijelaskan.</span>
+          <span class="d-body">Kursor aina terbang ke tombol yang tepat, ditemani sorotan dan goresan marker. Klik yang ditunjuk, dan aina memberi langkah berikutnya.</span>
+        </div>
+        <div class="detail" data-detail="2">
+          <span class="d-n">03 <span>Izin</span></span>
+          <span class="d-title">Bertanya dulu, setiap kali.</span>
+          <span class="d-body">Sebelum mengirim, membeli, atau mengubah file, aina bertanya lewat notch dan suara. Jawab “boleh” atau “jangan”. Jawaban ragu dianggap jangan.</span>
+        </div>
+        <div class="detail" data-detail="3">
+          <span class="d-n">04 <span>Esc</span></span>
+          <span class="d-title">Satu tombol untuk berhenti.</span>
+          <span class="d-body">Esc menghentikan suara, gambar, dan tugas apa pun yang sedang berjalan. Kamu tidak pernah berebut kendali dengan aina.</span>
+        </div>
       </div>
+      <div class="detail-visual-wrap">
+        <div class="detail-visual" aria-hidden="true">
+          <div style="position:absolute;left:6cqw;right:6cqw;top:14cqw;bottom:8cqw;border-radius:2cqw;background:#fff;box-shadow:0 3cqw 8cqw -3cqw rgba(6,19,52,.35);overflow:hidden">
+            <div style="height:6cqw;border-bottom:.2cqw solid #eef1f5;display:flex;align-items:center;padding:0 3cqw;font-size:2.4cqw;font-weight:600;color:#5f6b7a">Laporan-Q4.xlsx</div>
+            <div style="display:flex;gap:4cqw;padding:2.4cqw 3cqw;font-size:2.5cqw;color:#151a22;border-bottom:.2cqw solid #eef1f5"><span>Beranda</span><span>Sisipkan</span><span data-dv-fmt class="dv-fmt">Format</span><span>Data</span></div>
+            <div style="position:absolute;left:0;right:0;top:14cqw;bottom:0;background-image:linear-gradient(#eef1f5 .2cqw,transparent .2cqw),linear-gradient(90deg,#eef1f5 .2cqw,transparent .2cqw);background-size:16cqw 5.6cqw"></div>
+          </div>
+          <div data-dv-notch class="dv-notch">
+            <div data-dv-textwrap class="dv-text">
+              <span data-dv-label style="font-size:2.4cqw;font-weight:700"></span>
+              <span data-dv-text style="font-size:3cqw;line-height:1.35"></span>
+            </div>
+          </div>
+          <img data-dv-cur class="acur dv-cur" src="img/aina-mark.png" alt="">
+          <div data-dv-esc class="dv-esc"><span class="kkey dv-key">Esc</span><span>semua berhenti</span></div>
+          <span class="pin" data-pin style="left:50cqw;top:9cqw"><span class="ping"></span><span class="pin-n">01</span></span>
+          <span class="pin" data-pin style="left:50cqw;top:42cqw"><span class="ping"></span><span class="pin-n">02</span></span>
+          <span class="pin" data-pin style="left:76cqw;top:18cqw"><span class="ping"></span><span class="pin-n">03</span></span>
+          <span class="pin" data-pin style="left:12cqw;top:86cqw"><span class="ping"></span><span class="pin-n">04</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
+<!-- ======================= NOTCH ======================= -->
+<section id="notch" class="sec sec-notch">
+  <div class="wrap split">
+    <div data-rv class="stack-18">
+      <span class="kicker">Notch pintar</span>
+      <h2>Gratis. <i>Tanpa</i> akun.</h2>
+      <p class="body-lg">Notch hitam di tepi atas layar. Diam saat tidak dipakai, terbuka saat kursor mendekat. Tetap jalan saat offline.</p>
+      <dl class="facts">
+        <div><dt>Jam, tanggal, cuaca</dt><dd>Open-Meteo, tiap 30 menit</dd></div>
+        <div><dt>Timer &amp; pomodoro</dt><dd>preset 25/5, 50/10, 15/3</dd></div>
+        <div><dt>Pusat Pengingat</dt><dd>+ Google Calendar</dd></div>
+        <div><dt>Jadwal salat</dt><dd>8 waktu Kemenag</dd></div>
+        <div><dt>Musik &amp; lirik</dt><dd>dari pemutar di Windows</dd></div>
+      </dl>
+    </div>
+    <div data-rv class="notch-demo">
+      <div class="seg" role="group" aria-label="Tampilan notch">
+        <button type="button" data-ntab="0" aria-pressed="true">Home</button>
+        <button type="button" data-ntab="1" aria-pressed="false">Pomodoro</button>
+        <button type="button" data-ntab="2" aria-pressed="false">Salat</button>
+        <button type="button" data-ntab="3" aria-pressed="false">Musik</button>
+      </div>
+      <div class="ncard-stage">
+        <div class="ncard" data-ncard aria-live="polite">
+          <div class="ncard-top"><span data-n="title"></span><span data-n="meta"></span></div>
+          <div class="ncard-big"><span data-n="big"></span><span data-n="unit"></span></div>
+          <div class="ncard-rows" data-n="rows"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PRIVASI ======================= -->
+<section id="privasi" class="sec sec-privasi">
+  <div class="wrap split">
+    <div data-rv class="stack-18">
+      <span class="kicker">Privasi</span>
+      <h2>Melihat layarmu. <i>Tanpa</i> menyimpannya.</h2>
+      <div class="priv-points">
+        <span><b>Hanya di memori.</b> Screenshot, rekaman suara, dan audio jawaban hilang setelah dipakai.</span>
+        <span><b>Selalu bertanya dulu.</b> Sebelum mengubah file, mengirim, atau membeli. Hapus selalu ke Recycle Bin.</span>
+        <span><b>Kamu yang pegang kendali.</b> Saklar per aplikasi, dan Esc selalu berhasil.</span>
+      </div>
+      <span class="fine priv-note">aina bukan AI lokal. Saat kamu bertanya, screenshot dan suaramu dikirim ke penyedia AI (Anthropic, OpenAI, ElevenLabs) supaya bisa dijawab, tanpa disimpan.</span>
+    </div>
+    <div data-rv class="explorer">
+      <div class="ex-bar"><span class="cur">Documents\aina</span><span>AppData</span><span>Riwayat</span></div>
+      <div class="ex-row ex-head"><span>Nama</span><span>Ukuran</span><span>Jenis</span></div>
+      <div class="ex-row"><span>config.json</span><span>4 KB</span><span>Pengaturan</span></div>
+      <div class="ex-row"><span>Dikte\2026-11-04 09.12.md</span><span>2 KB</span><span>Catatan</span></div>
+      <div class="ex-row"><span>badi-reports\2026-11-04-fix-hero.md</span><span>6 KB</span><span>Laporan</span></div>
+      <div class="ex-row"><span>agents\routine\output\2026-11-03.md</span><span>3 KB</span><span>Sprite</span></div>
+      <div class="zeros">
+        <div><span data-zero>0</span><span>screenshot tersimpan</span></div>
+        <div><span data-zero>0</span><span>rekaman suara</span></div>
+        <div><span data-zero>0</span><span>audio jawaban</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= HARGA (same rows as Catalog::defaults in badi-cloud-core) ======================= -->
+<section id="harga" class="sec sec-harga">
+  <div class="wrap stack-40">
+    <div data-rv class="head">
+      <span class="kicker">Harga</span>
+      <h2>Bayar <i>sesuai</i> pakai.</h2>
+      <span class="body">Notch tetap gratis.</span>
+    </div>
+    <div data-rv class="plans">
+      <div class="plan">
+        <div class="plan-top"><span class="plan-name">Free</span><span class="plan-tag">COBA</span></div>
+        <div class="plan-price"><b>Rp0</b></div>
+        <span class="plan-credits">10 kredit, sekali per PC</span>
+        <span class="feat">Notch gratis selamanya</span>
+        <span class="feat">Tanpa kartu</span>
+        <a class="plan-btn" href="https://badi-cloud.faisalmashuri16.workers.dev/download" data-cloud-path="/download">Unduh gratis</a>
+      </div>
+      <div class="plan">
+        <div class="plan-top"><span class="plan-name">Basic</span></div>
+        <div class="plan-price"><b>Rp49rb</b><span>/ 30 hari</span></div>
+        <span class="plan-credits">85 kredit per siklus</span>
+        <span class="feat">Sisa hangus di akhir siklus</span>
+        <a class="plan-btn" href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Langganan</a>
+      </div>
+      <div class="plan hot">
+        <div class="plan-top"><span class="plan-name">Pro</span><span class="plan-tag">BEST VALUE</span></div>
+        <div class="plan-price"><b>Rp129rb</b><span>/ 30 hari</span></div>
+        <span class="plan-credits">225 kredit per siklus</span>
+        <span class="feat">Aplikasi kerja Google</span>
+        <span class="feat">Sprite untuk tugas panjang</span>
+        <a class="plan-btn primary" href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Langganan Pro</a>
+      </div>
+    </div>
+    <span class="fine plans-note">Top-Up yang tidak pernah hangus mulai Rp49rb untuk 65 kredit. Bayar dengan kartu, QRIS, virtual account, atau e-wallet. <a href="https://badi-cloud.faisalmashuri16.workers.dev/langganan" data-cloud-path="/langganan">Lihat semua paket</a></span>
+  </div>
+</section>
+
+<!-- ======================= UNDUH ======================= -->
+<section id="unduh" class="sec-unduh">
+  <div data-rv class="wrap cta-card">
+    <div class="stack-18">
+      <img src="img/aina-mark.png" alt="" width="52" height="52">
+      <h2>Tahan dua tombol. <i>Mulai</i> bicara.</h2>
+      <span class="cta-body">Pasang, masuk dengan Google, dan tanya pertamamu kurang dari 3 menit. Tanpa API key.</span>
+      <div class="cta-row left">
+        <a class="btn btn-white btn-lg" href="https://badi-cloud.faisalmashuri16.workers.dev/download" data-cloud-path="/download">Unduh installer (.exe)</a>
+        <a class="btn btn-glass btn-lg" href="https://apps.microsoft.com/store/detail/9NTPSJ3MWQLZ?cid=DevShareMCLPCS" target="_blank" rel="noopener">Microsoft Store</a>
+      </div>
+      <span class="mono cta-req">Windows 10/11 x64 · WebView2</span>
+    </div>
+    <div class="stats">
+      <div><span>9,2 MB</span><span>ukuran aplikasi</span></div>
+      <div><span>0,04%</span><span>CPU saat diam</span></div>
+      <div><span>&lt;3 dtk</span><span>sampai suara pertama</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= MASUKAN ======================= -->
+<section id="masukan" class="sec-masukan">
+  <form data-rv id="feedbackForm" class="wrap fb" novalidate>
+    <div class="fb-head">
+      <span class="kicker">Masukan</span>
+      <h2>Bantu kami membangun <i>aina.</i></h2>
+      <p class="body">Ceritakan pengalamanmu memakai aina. Masukanmu menentukan fitur apa yang kami kerjakan berikutnya.</p>
+    </div>
+    <div class="fb-fields">
       <div class="field">
         <label for="fbEmail">Email kamu (wajib)</label>
         <input id="fbEmail" name="email" type="email" required autocomplete="email" placeholder="nama@email.com">
       </div>
-
       <div class="field">
         <div id="fbRatingLabel" class="label">Rating kamu</div>
         <div class="ratings" role="radiogroup" aria-labelledby="fbRatingLabel">
-          <button type="button" role="radio" data-rating="1" aria-checked="false" aria-label="Sangat buruk"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="9" cy="10" r=".6"/><circle class="eye" cx="15" cy="10" r=".6"/><path d="M8 17 Q12 13 16 17"/></svg></button>
-          <button type="button" role="radio" data-rating="2" aria-checked="false" aria-label="Buruk"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="9" cy="10" r=".6"/><circle class="eye" cx="15" cy="10" r=".6"/><path d="M8.5 16.5 Q12 14.5 15.5 16.5"/></svg></button>
-          <button type="button" role="radio" data-rating="3" aria-checked="false" aria-label="Biasa"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="9" cy="10" r=".6"/><circle class="eye" cx="15" cy="10" r=".6"/><path d="M8.5 15.5 L15.5 15.5"/></svg></button>
-          <button type="button" role="radio" data-rating="4" aria-checked="true" aria-label="Bagus"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="9" cy="10" r=".6"/><circle class="eye" cx="15" cy="10" r=".6"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/></svg></button>
-          <button type="button" role="radio" data-rating="5" aria-checked="false" aria-label="Sangat bagus"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="eye" cx="9" cy="10" r=".6"/><circle class="eye" cx="15" cy="10" r=".6"/><path d="M8 14 Q12 19 16 14"/></svg></button>
+          <button type="button" role="radio" data-rating="1" aria-checked="false" aria-label="Sangat buruk">1</button>
+          <button type="button" role="radio" data-rating="2" aria-checked="false" aria-label="Buruk">2</button>
+          <button type="button" role="radio" data-rating="3" aria-checked="false" aria-label="Biasa">3</button>
+          <button type="button" role="radio" data-rating="4" aria-checked="true" aria-label="Bagus">4</button>
+          <button type="button" role="radio" data-rating="5" aria-checked="false" aria-label="Sangat bagus">5</button>
         </div>
       </div>
-
       <div class="field">
         <div id="fbImproveLabel" class="label">Apa yang bisa kami tingkatkan?</div>
         <div class="chips" role="group" aria-labelledby="fbImproveLabel">
           <button type="button" aria-pressed="true">Tanya layar</button>
           <button type="button" aria-pressed="false">Panduan klik demi klik</button>
+          <button type="button" aria-pressed="false">Notch</button>
           <button type="button" aria-pressed="false">Suara &amp; dikte</button>
           <button type="button" aria-pressed="false">Aplikasi kerja</button>
           <button type="button" aria-pressed="false">Harga &amp; kredit</button>
         </div>
       </div>
-
       <div class="field">
         <label for="fbThoughts">Ada hal lain yang ingin kamu ceritakan?</label>
-        <textarea id="fbThoughts" name="message" required rows="6" placeholder="Masukanmu (wajib)"></textarea>
+        <textarea id="fbThoughts" name="message" required rows="5" placeholder="Masukanmu (wajib)"></textarea>
       </div>
-
       <div class="submit-row">
-        <button class="btn btn-primary btn-submit" type="submit">Kirim masukan</button>
+        <button class="btn btn-dark btn-lg" type="submit">Kirim masukan</button>
         <div class="form-status" id="fbStatus" role="status"></div>
       </div>
-    </form>
-  </section>
+    </div>
+  </form>
+</section>
 </main>
 
-<footer>
-  <div class="wrap">
-    <a class="brand" href="#top" aria-label="aina, kembali ke atas"><img class="logo logo-lg" src="img/aina-logo.png" alt="aina" width="130" height="34"></a>
-    <p>Teman di sebelah kursormu.</p>
-  </div>
+<footer class="wrap foot">
+  <div class="foot-brand"><img src="img/aina-logo.png" alt="aina" height="20"><span>Teman di sebelah kursormu.</span></div>
+  <div class="foot-links"><a href="#privasi">Privasi</a><a href="#masukan">Kirim masukan</a><span>© 2026 Ragam Karya</span></div>
 </footer>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
 <script src="script.js" defer></script>
 </body>
 </html>
