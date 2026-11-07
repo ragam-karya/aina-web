@@ -54,6 +54,26 @@ button{font-family:inherit}
 .hv35:hover{background:#eef3fb !important;color:#061334 !important}
 .hv36:hover{background:#0B4FB3 !important}
 
+/* The notch's page indicator, as in aina-notch (overlay.html: .peek .dots). */
+.pg-dots { display: flex; justify-content: center; padding-top: 7px; --slot: 14px; --pop: cubic-bezier(.34, 1.5, .6, 1); }
+.pg-dots:hover { --slot: 30px; }
+.pg-dtrack { position: relative; display: flex; }
+.pg-pind { position: absolute; left: 1px; top: 50%; width: calc(var(--slot) - 2px); height: 5px; border-radius: 999px; background: #eef2f8; transform: translate(calc(var(--i, 0) * var(--slot)), -50%); transition: transform .44s cubic-bezier(.34, 1.4, .5, 1), width .3s var(--pop), height .3s var(--pop); }
+.pg-dots:hover .pg-pind { height: 20px; }
+.pg-pdot { position: relative; z-index: 1; width: var(--slot); height: 20px; display: grid; place-items: center; cursor: pointer; color: #8e9bb0; border: 0; padding: 0; background: none; transition: width .3s var(--pop), color .18s ease; }
+.pg-pdot::before { content: ""; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: color-mix(in srgb, #8e9bb0 75%, transparent); transition: opacity .18s ease, transform .3s var(--pop); }
+.pg-pdot > * { opacity: 0; transform: scale(.5); transition: opacity .18s ease, transform .3s var(--pop); }
+.pg-dots:hover .pg-pdot::before, .pg-pdot.on::before { opacity: 0; transform: scale(.4); }
+.pg-dots:hover .pg-pdot > * { opacity: 1; transform: none; }
+.pg-dots:hover .pg-pdot:hover { color: #eef2f8; }
+.pg-pdot.on { color: #000 !important; }
+.pg-pdot:focus-visible { outline: 2px solid #5aa9ff; outline-offset: 1px; border-radius: 6px; }
+.pg-pdot.live::before { background: var(--k); }
+.pg-pdot.k-timer { --k: #ff8a3d; }
+.pg-pdot.k-media { --k: #a78bfa; }
+.pg-pdot.live::after { content: ""; position: absolute; top: -1px; right: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--k); box-shadow: 0 0 0 2px #000, 0 0 6px var(--k); animation: pulse 1.6s ease-in-out infinite; }
+.pg-dots:not(:hover) .pg-pdot.live::after { display: none; }
+
 /* Phones and touch screens (not in the design, which is laid out for a desktop). The pg-* classes are
    hooks tools/build-playground.py adds; !important beats the design's inline styles. */
 @media (max-width: 640px) {
@@ -67,6 +87,12 @@ button{font-family:inherit}
 /* No keyboard or mouse: the Ctrl + Alt chip and "move the pointer" hint don't apply; tap the notch,
    or use "Tahan untuk bertanya" in the panel. */
 @media (hover: none) {
+  /* Nothing to hover: the icons stay out, so the pages can be told apart and tapped. */
+  .pg-dots { --slot: 30px; }
+  .pg-dots .pg-pind { height: 20px; }
+  .pg-dots .pg-pdot::before { opacity: 0; }
+  .pg-dots .pg-pdot > * { opacity: 1; transform: none; }
+  .pg-dots:not(:hover) .pg-pdot.live::after { display: block; }
   .pg-hold { display: none !important; }
   .pg-hint-mouse { display: none !important; }
 }
