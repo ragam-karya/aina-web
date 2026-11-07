@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Terima kasih · aina</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/account.css">
+</head>
+<body>
+<div class="shell" id="app">
+  <main class="thanks"><div class="spinner" role="status" aria-label="Memuat"></div></main>
+</div>
+
+<script src="/account.js"></script>
+<script>
+(function () {
+  const { api, el, icons, rupiah, date, query, header } = window.aina;
+  const app = document.getElementById('app');
+  const order = query('order_id') || '';
+  const TRIES = 24;
+  const EVERY_MS = 5000;
+  let account = null;
+
+  function show(...body) {
+    app.replaceChildren(header(account, ''), el('main', { class: 'thanks' }, el('div', { class: 'thanks-body rise' }, ...body)));
+  }
+
+  const appButtons = () => el('div', { class: 'actions' },
+    el('a', { class: 'btn btn-primary', href: 'badi://open' }, 'Buka aina'),
+    el('a', { class: 'btn btn-light', href: '/api/download' }, 'Belum pasang? Unduh untuk Windows'),
+  );
+  const manage = () => el('span', { class: 'small' }, el('a', { href: '/langganan' }, 'Kelola langganan'));
+
+  // No order of this person to show (the app's own checkout, or not signed in here): the plain thanks.
+  function generic() {
+    show(
+      el('div', { class: 'thanks-head' },
+        el('span', { class: 'kicker' }, 'Pembayaran'),
+        el('h1', {}, 'Terima ', el('i', {}, 'kasih!')),
+        el('span', { class: 'lede' }, 'Pembayaranmu sedang dicek. Paketmu aktif dalam beberapa detik setelah lunas.'),
+      ),
+      appButtons(),
+      manage(),
+    );
+  }
+
+  let shownChecking = null;
+  function checking(waitingLonger) {
+    if (shownChecking === waitingLonger) return; // still the same: no redraw every 5 seconds
+    shownChecking = waitingLonger;
+    show(
+      el('div', { class: 'spinner', 'aria-hidden': 'true' }),
+      el('div', { class: 'thanks-head', role: 'status' },
+        el('span', { class: 'kicker' }, 'Memverifikasi pembayaran…'),
+        el('span', { class: 'lede' }, waitingLonger
+          ? 'Masih menunggu kabar dari Midtrans. Paketmu aktif otomatis setelah lunas; cek lagi nanti di halaman paket.'
+          : 'Halaman ini diperbarui sendiri dalam beberapa detik.'),
+      ),
+      waitingLonger ? manage() : null,
+    );
+  }
+
+  function paid(o) {
+    const a = o.account || account || {};
+    const sub = o.kind === 'subscription';
+    const card = sub && a.renewal && a.renewal.card;
+    const rows = [
+      ['No. pesanan', o.order, true],
+      ['Paket', o.name],
+      card ? ['Metode', `Kartu ${card} · otomatis`] : null,
+      ['Total', rupiah(o.amount)],
+      sub ? (a.until ? ['Berlaku', `s.d. ${date(a.until)}`] : null) : ['Berlaku', 'Tidak hangus'],
+    ].filter(Boolean);
+    show(
+      el('span', { class: 'badge-icon ok', 'aria-hidden': 'true' }, icons.check(34, 2.6)),
+      el('div', { class: 'thanks-head' },
+        el('span', { class: 'kicker ok' }, 'Pembayaran berhasil'),
+        el('h1', {}, o.credits ? `+${o.credits} kredit ` : 'Paketmu ', el('i', {}, o.credits ? 'sudah masuk.' : 'sudah aktif.')),
+        el('span', { class: 'lede' }, `Ke akun ${a.email || ''}. Aplikasi aina di komputermu langsung membacanya.`),
+      ),
+      appButtons(),
+      el('div', { class: 'receipt' }, rows.map(([k, v, mono]) => el('div', { class: 'row' }, el('span', {}, k), el('span', { class: mono ? 'mono' : '' }, v)))),
+      manage(),
+    );
+  }
+
+  function failed() {
+    show(
+      el('span', { class: 'badge-icon bad', 'aria-hidden': 'true' }, icons.cross()),
+      el('div', { class: 'thanks-head' },
+        el('span', { class: 'kicker bad' }, 'Pembayaran belum berhasil'),
+        el('h1', {}, 'Tidak ada yang ', el('i', {}, 'ditagih.')),
+        el('span', { class: 'lede' }, 'Pembayarannya ditolak, dibatalkan, atau kedaluwarsa.'),
+      ),
+      el('div', { class: 'actions' }, el('a', { class: 'btn btn-primary', href: '/langganan' }, 'Coba lagi')),
+    );
+  }
+
+  async function poll(left) {
+    const r = await api('/v1/orders/' + encodeURIComponent(order));
+    if (!r.ok || !r.data) return generic();
+    if (r.data.account) account = r.data.account;
+    if (r.data.status === 'paid') return paid(r.data);
+    if (r.data.status === 'failed') return failed();
+    if (left <= 0) return checking(true);
+    checking(false);
+    setTimeout(() => poll(left - 1), EVERY_MS);
+  }
+
+  (async function start() {
+    const acc = await api('/v1/account');
+    if (acc.ok) account = acc.data;
+    if (!order || !account) return generic();
+    poll(TRIES);
+  })();
+})();
+</script>
+</body>
+</html>

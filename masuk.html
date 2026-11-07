@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Masuk · aina</title>
+  <meta name="description" content="Masuk ke aina dengan akun Google untuk berlangganan.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/account.css">
+</head>
+<body>
+<div class="shell">
+  <main class="signin">
+    <div class="signin-side">
+      <a href="/" style="display:flex" aria-label="aina beranda"><img src="/img/aina-logo.png" alt="aina" height="24" style="height:24px;width:auto"></a>
+      <div class="signin-main">
+        <div class="signin-form rise">
+          <div class="signin-head">
+            <span class="kicker">Masuk</span>
+            <h1>Satu akun untuk <i>semuanya.</i></h1>
+            <span class="lede">Masuk untuk berlangganan. Akun yang sama dipakai di aplikasi aina di Windows-mu.</span>
+          </div>
+          <div class="notice bad" id="error" role="alert" hidden></div>
+          <div class="picked" id="picked" hidden>
+            <span class="picked-mark" id="picked-mark"></span>
+            <div class="picked-text"><b id="picked-name"></b><span id="picked-meta"></span></div>
+            <button type="button" class="link-btn" id="picked-clear" style="font-size:13px">Ganti</button>
+          </div>
+          <a class="google" id="google" href="/api/login?next=%2Flangganan"><span id="google-mark"></span>Lanjutkan dengan Google</a>
+          <div class="checks">
+            <span><b>✓</b>Kami hanya membaca nama dan email. Tidak ada akses ke Gmail atau Drive.</span>
+            <span><b>✓</b><span id="free-line">Belum punya akun? Dibuat otomatis, dan dapat kredit gratis saat pertama masuk dari aplikasi.</span></span>
+          </div>
+          <span class="small">Dengan masuk, kamu setuju dengan <a href="/api/ketentuan">Ketentuan</a> dan <a href="/api/privasi">Kebijakan privasi</a> aina.</span>
+        </div>
+      </div>
+      <span class="copy">© 2026 Ragam Karya</span>
+    </div>
+
+    <div class="signin-art" aria-hidden="true">
+      <div class="notch">
+        <div class="orb"></div>
+        <div class="notch-text"><b>Menjawab</b><span>Itu ada di menu Format, aku tunjukkan ya.</span></div>
+      </div>
+      <div class="art-copy">
+        <b>Teman di sebelah <i>kursormu.</i></b>
+        <span>Tanya layarmu dengan suara, dipandu klik demi klik, dan setiap perubahan selalu seizinmu.</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/account.js"></script>
+<script>
+(function () {
+  const { api, rupiahShort, safeNext, query, icons } = window.aina;
+  const $ = (id) => document.getElementById(id);
+  $('google-mark').replaceWith(icons.google());
+
+  let plan = query('plan');
+  const asked = query('next');
+
+  // Where the login comes back to: the page asked for, or the plans (with the chosen plan picked).
+  function next() {
+    if (asked) return safeNext(asked);
+    return plan ? '/langganan?plan=' + encodeURIComponent(plan) : '/langganan';
+  }
+  function update() {
+    $('google').href = '/api/login?next=' + encodeURIComponent(next());
+  }
+  update();
+
+  const error = query('error');
+  if (error) {
+    $('error').textContent = error;
+    $('error').hidden = false;
+  }
+
+  // Already signed in: straight on (not after an error, so the message can be read).
+  if (!error) {
+    api('/v1/account').then((r) => { if (r.ok) location.replace(next()); });
+  }
+
+  api('/v1/plans').then((r) => {
+    if (!r.ok || !r.data) return;
+    const free = r.data.free && r.data.free.credits;
+    if (free) $('free-line').textContent = `Belum punya akun? Dibuat otomatis, dan dapat ${free} kredit gratis saat pertama masuk dari aplikasi.`;
+    const all = [].concat(r.data.subscriptions || [], r.data.topups || []);
+    const p = plan && all.find((x) => x.id === plan);
+    if (!p) return;
+    $('picked-mark').textContent = (p.name.replace(/^Top-Up\s+/i, '')[0] || '?').toUpperCase();
+    $('picked-name').textContent = `Kamu memilih ${p.name}`;
+    $('picked-meta').textContent = `${rupiahShort(p.price)} ${p.kind === 'subscription' ? `/ ${p.days} hari` : '/ pack'} · ${p.credits} kredit`;
+    $('picked').hidden = false;
+  });
+
+  $('picked-clear').addEventListener('click', () => {
+    plan = null;
+    $('picked').hidden = true;
+    const u = new URL(location.href);
+    u.searchParams.delete('plan');
+    history.replaceState(null, '', u);
+    update();
+  });
+})();
+</script>
+</body>
+</html>

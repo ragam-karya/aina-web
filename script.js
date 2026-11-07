@@ -7,7 +7,8 @@
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---------- Badi Cloud links ----------
-  // Subscribing and the download live on Badi Cloud; its address is set once, on <body data-cloud>.
+  // The download and the feedback form go to Badi Cloud through this site's /api proxy (worker.js); the
+  // address is set once, on <body data-cloud>. Subscribing has its own pages here (/masuk, /langganan).
   const cloud = (document.body.dataset.cloud || '').replace(/\/$/, '');
   if (cloud) for (const a of $$('[data-cloud-path]')) a.href = cloud + a.dataset.cloudPath;
 

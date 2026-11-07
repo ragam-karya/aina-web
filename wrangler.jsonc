@@ -1,12 +1,21 @@
-// The landing page on Cloudflare (static assets only): deploy from this folder with `npx wrangler deploy`.
+// The landing page on Cloudflare: deploy from this folder with `npx wrangler deploy`.
 // Live at https://aina.ai.id (and www), plus https://aina-landing.faisalmashuri16.workers.dev.
 // The old https://badi-landing… address redirects here (a separate redirect-only Worker).
+// Static assets, plus worker.js for /api/*, which it hands to the badi-cloud Worker (service binding API).
 {
   "name": "aina-landing",
+  "main": "worker.js",
   "compatibility_date": "2026-10-12",
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS",
+    // Only /api/* and the account pages run the Worker (it sends www to the bare domain for them);
+    // everything else is served straight from the assets.
+    "run_worker_first": ["/api/*", "/masuk", "/langganan", "/terima-kasih"]
   },
+  "services": [
+    { "binding": "API", "service": "badi-cloud" }
+  ],
   // Custom domains: Cloudflare creates the DNS records and certificates itself (the zone must be on Cloudflare).
   "routes": [
     { "pattern": "aina.ai.id", "custom_domain": true },

@@ -4,6 +4,8 @@ Halaman landing **aina**: AI assistant dan companion di Windows yang duduk di se
 
 Ini halaman statis biasa (`index.html`, `style.css`, `script.js`, dan gambar di `img/`), tanpa build.
 
+Halaman akun juga ada di sini: `masuk.html`, `langganan.html`, dan `terima-kasih.html` (dengan `account.css` dan `account.js`), dibuka sebagai `/masuk`, `/langganan`, `/terima-kasih`. Halaman-halaman ini memanggil aina Cloud (Worker `badi-cloud`, repo `aina-backend`) lewat `/api/*`. `worker.js` meneruskan `/api/*` ke `badi-cloud` lewat service binding, jadi browser hanya bicara dengan domain ini dan cookie sesi `badi_session` tersimpan di sini. Login Google tetap kembali lewat callback `badi-cloud` (redirect URI di Google Console tidak berubah), lalu ke `/api/auth/finish`.
+
 Desainnya mengikuti `aina Landing.dc.html` dari paket handoff desain aina 1.0. Animasi memakai GSAP 3.12 + ScrollTrigger dari CDN jsDelivr. Tanpa GSAP halaman tetap terbaca, hanya demonya diam.
 
 ## Lihat di komputer sendiri
@@ -16,9 +18,11 @@ npx serve .
 python -m http.server 8080
 ```
 
+Halaman akun (`/masuk`, `/langganan`, `/terima-kasih`) butuh `/api`, jadi jalankan dengan Wrangler: `npx wrangler dev` di `aina-backend/cloud` dulu, lalu `npx wrangler dev` di folder ini (service binding ke `badi-cloud` tersambung otomatis antar sesi dev lokal).
+
 ## Deploy
 
-Halaman ini di-deploy sebagai Cloudflare Worker (static assets saja) bernama `aina-landing`, lihat `wrangler.jsonc`:
+Halaman ini di-deploy sebagai Cloudflare Worker bernama `aina-landing` (static assets, plus `worker.js` untuk `/api/*`), lihat `wrangler.jsonc`. Worker `badi-cloud` harus sudah ada di akun Cloudflare yang sama karena dipakai lewat service binding `API`:
 
 ```bash
 npx wrangler deploy

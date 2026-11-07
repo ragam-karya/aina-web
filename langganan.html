@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Langganan · aina</title>
+  <meta name="description" content="Pilih paket langganan atau Top-Up kredit aina.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/account.css">
+</head>
+<body>
+<div class="shell" id="app">
+  <main class="thanks" id="loading"><div class="spinner" role="status" aria-label="Memuat"></div></main>
+</div>
+
+<script src="/account.js"></script>
+<script>
+(function () {
+  const { api, errorText, el, icons, rupiah, rupiahShort, query, firstName, creditsLeft, header } = window.aina;
+  const app = document.getElementById('app');
+
+  // What each card lists beyond its credits (the price list itself comes from aina Cloud).
+  const EXTRA = {
+    basic: ['Sisa hangus di akhir siklus'],
+    pro: ['Aplikasi kerja Google', 'Sprite untuk tugas panjang'],
+  };
+  const FAQ = [
+    ['Bisa dibatalkan kapan saja?', 'Bisa. Batalkan dari halaman ini atau dari Settings di aplikasi. Paketmu tetap aktif sampai akhir siklus, dan tidak ada tagihan berikutnya.'],
+    ['Apa bedanya Langganan dan Top-Up?', 'Langganan memberi kredit per 30 hari dengan harga per kredit lebih murah, sisanya hangus di akhir siklus. Top-Up sekali bayar dan kreditnya tidak pernah hangus.'],
+    ['Bisa bayar pakai QRIS atau e-wallet?', 'Bisa, lewat Midtrans. Untuk QRIS, virtual account, dan e-wallet pembayarannya sekali bayar dan tidak diperpanjang otomatis.'],
+    ['Apakah aina menyimpan data kartuku?', 'Tidak. Data kartu ditangani Midtrans. aina hanya menerima status pembayaran.'],
+  ];
+
+  const state = { account: null, plans: null, tab: 'sub', sel: null, agree: false, faq: 0, busy: false, error: '', notice: null };
+
+  function feats(p) {
+    if (p.kind !== 'subscription') return ['Tidak pernah hangus'];
+    return [`±${p.credits} tanya layar`].concat(EXTRA[p.id] || ['Sisa hangus di akhir siklus']);
+  }
+  const list = (tab) => (tab === 'sub' ? state.plans.subscriptions : state.plans.topups) || [];
+  const find = (id) => list('sub').concat(list('top')).find((p) => p.id === id);
+  const isSub = (p) => p && p.kind === 'subscription';
+
+  function pick(tab) {
+    const ps = list(tab);
+    return (ps.find((p) => p.badge) || ps[ps.length - 1] || {}).id || null;
+  }
+
+  async function load() {
+    const [acc, plans] = await Promise.all([api('/v1/account'), api('/v1/plans')]);
+    if (acc.status === 401) {
+      const here = location.pathname + location.search;
+      location.replace('/masuk?next=' + encodeURIComponent(here));
+      return;
+    }
+    if (!acc.ok || !plans.ok) {
+      app.replaceChildren(header(null), el('main', { class: 'thanks' }, el('div', { class: 'thanks-body' },
+        el('div', { class: 'notice bad' }, errorText(acc.ok ? plans : acc, 'Halaman paket belum bisa dimuat. Coba lagi sebentar lagi.')),
+        el('button', { type: 'button', class: 'btn btn-light', on: { click: () => location.reload() } }, 'Muat ulang'),
+      )));
+      return;
+    }
+    state.account = acc.data;
+    state.plans = plans.data;
+    const wanted = find(query('plan'));
+    if (wanted) {
+      state.tab = isSub(wanted) ? 'sub' : 'top';
+      state.sel = wanted.id;
+    } else {
+      // Already subscribed: a second subscription can't be bought, so the top-ups come first.
+      state.tab = state.account.canSubscribe === false && state.account.subscribed ? 'top' : 'sub';
+      state.sel = pick(state.tab);
+    }
+    render();
+  }
+
+  async function pay() {
+    const p = find(state.sel);
+    if (!p || !state.agree || state.busy) return;
+    state.busy = true;
+    state.error = '';
+    render();
+    const r = await api('/v1/checkout', { method: 'POST', body: { item: p.id } });
+    if (r.ok && r.data && r.data.url) {
+      location.assign(r.data.url);
+      return;
+    }
+    if (r.status === 401) {
+      location.assign('/masuk?next=' + encodeURIComponent('/langganan?plan=' + p.id));
+      return;
+    }
+    state.busy = false;
+    state.error = errorText(r, 'Pembayaran belum bisa dimulai. Coba lagi sebentar lagi.');
+    render();
+  }
+
+  async function cancelRenewal() {
+    const r = await api('/v1/subscription/cancel', { method: 'POST' });
+    if (r.ok && r.data) {
+      state.account = r.data;
+      state.notice = { ok: true, text: 'Perpanjangan otomatis dibatalkan. Paketmu tetap aktif sampai akhir siklus.' };
+    } else {
+      state.notice = { ok: false, text: errorText(r, 'Belum bisa membatalkan. Coba lagi sebentar lagi.') };
+    }
+    render();
+  }
+
+  // Why the selected plan can't be bought now ('' when it can).
+  function whyNot(p) {
+    const a = state.account;
+    if (a.unlimited) return 'Akun ini tanpa batas, jadi tidak perlu membeli paket.';
+    if (a.plan === 'beta') return 'Selama beta, paket dan Top-Up belum bisa dibeli.';
+    if (isSub(p) && a.canSubscribe === false) return 'Langganan masih aktif sampai akhir siklusnya. Kalau kredit habis, beli Top-Up.';
+    return '';
+  }
+
+  function strip() {
+    const a = state.account;
+    const planSub = [a.untilText, a.renewal && a.renewal.auto && a.renewal.card ? `kartu ${a.renewal.card}` : ''].filter(Boolean).join(' · ');
+    const item = (label, value, extra) => el('div', { class: 'strip-item' }, el('small', {}, label), value, extra);
+    return el('div', { class: 'strip' },
+      item('Paket sekarang', el('b', {}, a.planName || 'Free'), planSub ? el('span', { class: 'sub' }, planSub) : null),
+      el('div', { class: 'strip-rule' }),
+      item('Kredit tersisa', el('b', {}, creditsLeft(a))),
+      el('div', { class: 'strip-rule' }),
+      item('Akun', el('span', { class: 'email' }, a.email)),
+      a.renewal && a.renewal.auto ? el('button', { type: 'button', class: 'link-btn', style: 'font-size:13px;margin-left:auto', on: { click: cancelRenewal } }, 'Batalkan perpanjangan otomatis') : null,
+    );
+  }
+
+  function tabs() {
+    return el('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Jenis paket' },
+      [['sub', 'Langganan'], ['top', 'Top-Up kredit']].map(([k, label]) => el('button', {
+        type: 'button', class: 'tab', role: 'tab', 'aria-selected': String(state.tab === k),
+        on: { click: () => { if (state.tab !== k) { state.tab = k; state.sel = pick(k); state.error = ''; render(); } } },
+      }, label)),
+    );
+  }
+
+  function cards() {
+    const a = state.account;
+    return el('div', { class: 'cards', role: 'radiogroup', 'aria-label': 'Paket' }, list(state.tab).map((p) => el('button', {
+      type: 'button', class: 'card', role: 'radio', 'aria-checked': String(state.sel === p.id),
+      on: { click: () => { state.sel = p.id; state.error = ''; render(); } },
+    },
+      el('div', { class: 'card-top' }, el('span', { class: 'card-name' }, p.name), el('span', { class: 'radio', 'aria-hidden': 'true' })),
+      el('span', { class: 'card-tag' }, (p.badge || '').toUpperCase()),
+      el('div', { class: 'card-price' }, el('b', {}, rupiahShort(p.price)), el('span', {}, isSub(p) ? `/ ${p.days} hari` : '/ pack')),
+      el('span', { class: 'card-credits' }, `${p.credits} kredit${p.perCredit ? ` · ${rupiah(p.perCredit)}/kredit` : ''}`),
+      feats(p).map((f) => el('span', { class: 'feat' }, f)),
+      isSub(p) && a.subscribed && a.plan === p.id ? el('span', { class: 'current' }, 'Paket kamu') : null,
+    )));
+  }
+
+  function faq() {
+    return el('div', { class: 'faq' }, FAQ.map(([q, a], i) => {
+      const open = state.faq === i;
+      return el('div', { class: 'faq-item' },
+        el('button', { type: 'button', class: 'faq-q', 'aria-expanded': String(open), on: { click: () => { state.faq = open ? -1 : i; render(); } } }, q, el('span', { 'aria-hidden': 'true' }, '+')),
+        open ? el('p', { class: 'faq-a' }, a) : null,
+      );
+    }));
+  }
+
+  function summary() {
+    const p = find(state.sel);
+    if (!p) return el('aside', { class: 'summary' }, el('span', { class: 'summary-title' }, 'Ringkasan pesanan'), el('span', { class: 'aside-note' }, 'Pilih paket dulu.'));
+    const sub = isSub(p);
+    const blocked = whyNot(p);
+    const row = (k, v, cls) => el('div', { class: 'row' + (cls ? ' ' + cls : '') }, el('span', {}, k), el('span', {}, v));
+    const agree = el('input', { type: 'checkbox', checked: state.agree, on: { change: (e) => { state.agree = e.target.checked; render(); } } });
+    return el('aside', { class: 'summary', 'aria-label': 'Ringkasan pesanan' },
+      el('span', { class: 'summary-title' }, 'Ringkasan pesanan'),
+      el('div', { class: 'rows' },
+        row('Paket', el('b', {}, p.name)),
+        row('Kredit', `${p.credits} kredit`),
+        row('Berlaku', sub ? `${p.days} hari` : 'Tidak hangus'),
+        row('Total', rupiah(p.price), 'total'),
+      ),
+      el('span', { class: 'summary-note' }, sub
+        ? 'Kartu kredit diperpanjang otomatis tiap 30 hari dan bisa dibatalkan kapan saja. QRIS, VA, dan e-wallet sekali bayar.'
+        : 'Sekali bayar. Kredit Top-Up dipakai setelah kredit langganan habis.'),
+      blocked ? el('div', { class: 'notice' }, blocked) : [
+        el('label', { class: 'agree' }, agree,
+          el('span', { class: 'box', 'aria-hidden': 'true' }, icons.check()),
+          el('span', {}, 'Aku setuju dengan ', el('a', { href: '/api/ketentuan', target: '_blank', rel: 'noopener' }, 'Ketentuan'), sub ? ', termasuk perpanjangan otomatis untuk kartu kredit.' : ', termasuk kebijakan kredit Top-Up.'),
+        ),
+        el('button', { type: 'button', class: 'btn btn-primary', disabled: !state.agree || state.busy, on: { click: pay } }, state.busy ? 'Membuka pembayaran…' : 'Bayar sekarang'),
+        state.error ? el('span', { class: 'pay-error', role: 'alert' }, state.error) : null,
+        el('span', { class: 'methods' }, 'Kartu · QRIS · Virtual account · E-wallet'),
+      ],
+    );
+  }
+
+  function render() {
+    const a = state.account;
+    const ent = state.plans.enterprise;
+    const contact = ent && ent.contact;
+    const focused = document.activeElement && document.activeElement.closest && document.activeElement.closest('[role="tab"],[role="radio"],.faq-q,.agree');
+    const focusKey = focused ? [...document.querySelectorAll('[role="tab"],[role="radio"],.faq-q,.agree')].indexOf(focused) : -1;
+    app.replaceChildren(
+      header(a, 'langganan'),
+      el('main', { class: 'plans-page' }, el('div', { class: 'plans-grid' },
+        el('div', { class: 'plans-main' },
+          el('div', { class: 'signin-head' },
+            el('span', { class: 'kicker' }, 'Langganan'),
+            el('h1', {}, `Halo, ${firstName(a)}. Pilih `, el('i', {}, 'cara pakaimu.')),
+          ),
+          strip(),
+          state.notice ? el('div', { class: 'notice' + (state.notice.ok ? ' ok' : ' bad'), role: 'status' }, state.notice.text) : null,
+          tabs(),
+          cards(),
+          ent ? el('span', { class: 'aside-note' }, 'Butuh untuk tim? ',
+            contact ? el('a', { href: contact }, 'Hubungi kami untuk Enterprise') : 'Hubungi tim aina untuk Enterprise',
+            ' · seat dan kuota custom.') : null,
+          faq(),
+        ),
+        summary(),
+      )),
+    );
+    if (focusKey >= 0) {
+      const again = document.querySelectorAll('[role="tab"],[role="radio"],.faq-q,.agree')[focusKey];
+      const target = again && (again.matches('.agree') ? again.querySelector('input') : again);
+      if (target) target.focus({ preventScroll: true });
+    }
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>
