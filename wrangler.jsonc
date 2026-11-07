@@ -9,9 +9,11 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
-    // Only /api/* and the account pages run the Worker (it sends www to the bare domain for them);
-    // everything else is served straight from the assets.
-    "run_worker_first": ["/api/*", "/masuk", "/langganan", "/terima-kasih"]
+    // Only these run the Worker: /api/*, the account pages, and the pages search engines index
+    // (it sends www to the bare domain for all of them). Everything else is served straight from the
+    // assets, and an unknown path gets 404.html.
+    "run_worker_first": ["/", "/playground", "/api/*", "/masuk", "/langganan", "/terima-kasih"],
+    "not_found_handling": "404-page"
   },
   "services": [
     { "binding": "API", "service": "badi-cloud" }

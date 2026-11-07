@@ -1,0 +1,7 @@
+# aina.ai.id. Cloudflare may add its own content-signal lines above these.
+User-agent: *
+Allow: /
+# aina Cloud through the site's proxy: an API, nothing to index.
+Disallow: /api/
+
+Sitemap: https://aina.ai.id/sitemap.xml
