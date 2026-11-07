@@ -1,0 +1,72 @@
+html,body{margin:0;height:100%;background:#14171c;font-family:Urbanist,"Segoe UI Variable Text","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#5aa9ff;text-decoration:none}a:hover{color:#8fc3ff}
+button{font-family:inherit}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
+@keyframes eq{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+@keyframes wave{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+@keyframes dots{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@keyframes ringGlow{0%,100%{box-shadow:0 0 0 3px rgba(43,138,255,.22),0 0 18px rgba(43,138,255,.45)}50%{box-shadow:0 0 0 5px rgba(43,138,255,.15),0 0 26px rgba(43,138,255,.6)}}
+@keyframes fly{0%{opacity:0;transform:translate(260px,-150px) rotate(-18deg) scale(.7)}60%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes ping{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+@keyframes pop{0%{opacity:0;transform:translateY(4px) scale(.9)}100%{opacity:1;transform:none}}
+@keyframes hintIn{0%{opacity:0;transform:translateY(-6px)}100%{opacity:1;transform:none}}
+@keyframes hintFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+@keyframes bob{0%,100%{transform:translate(0,0)}50%{transform:translate(1px,2px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* style-hover from the design */
+.hv0:hover{background:rgba(255,255,255,.18) !important}
+.hv1:hover{background:rgba(16,24,40,.07) !important}
+.hv2:hover{background:rgba(16,24,40,.07) !important}
+.hv3:hover{background:rgba(255,255,255,.08) !important}
+.hv4:hover{background:rgba(255,255,255,.08) !important}
+.hv5:hover{background:rgba(255,255,255,.09) !important}
+.hv6:hover{background:rgba(255,255,255,.09) !important}
+.hv7:hover{background:rgba(255,255,255,.09) !important}
+.hv8:hover{background:rgba(255,255,255,.09) !important}
+.hv9:hover{background:#4a9bff !important}
+.hv10:hover{background:rgba(255,255,255,.08) !important}
+.hv11:hover{background:rgba(255,255,255,.09) !important}
+.hv12:hover{background:rgba(255,255,255,.12) !important}
+.hv13:hover{background:rgba(255,255,255,.12) !important}
+.hv14:hover{background:#4a9bff !important}
+.hv15:hover{background:#4a9bff !important}
+.hv16:hover{color:#eef2f8 !important}
+.hv17:hover{background:rgba(255,255,255,.08) !important}
+.hv18:hover{background:#4a9bff !important}
+.hv19:hover{background:rgba(255,255,255,.08) !important}
+.hv20:hover{background:rgba(43,138,255,.18) !important}
+.hv21:hover{background:#4a9bff !important}
+.hv22:hover{background:#232a35 !important}
+.hv23:hover{background:#2b6ff7 !important}
+.hv24:hover{background:#1c2027 !important}
+.hv25:hover{background:#1c2027 !important}
+.hv26:hover{background:#1c2027 !important}
+.hv27:hover{background:#1c2027 !important}
+.hv28:hover{background:#1c2027 !important}
+.hv29:hover{background:#1c2027 !important}
+.hv30:hover{background:#1c2027 !important}
+.hv31:hover{background:#2b6ff7 !important}
+.hv32:hover{background:#232a35 !important}
+.hv33:hover{background:#e81123 !important;color:#fff !important}
+.hv34:hover{background:#0B4FB3 !important;color:#fff !important}
+.hv35:hover{background:#eef3fb !important;color:#061334 !important}
+.hv36:hover{background:#0B4FB3 !important}
+
+/* Phones and touch screens (not in the design, which is laid out for a desktop). The pg-* classes are
+   hooks tools/build-playground.py adds; !important beats the design's inline styles. */
+@media (max-width: 640px) {
+  [aria-label="Ikon desktop"] { display: none !important; }
+  .pg-appwin { left: 8px !important; width: calc(100% - 16px) !important; top: 64px !important; bottom: 120px !important; }
+  .pg-drop { left: auto !important; right: 16px !important; margin-left: 0 !important; }
+  .pg-search, .pg-tray, .pg-hold, .pg-hint-mouse { display: none !important; }
+  .pg-hint { top: 34px !important; left: 12px !important; right: 12px !important; transform: none !important; display: flex; justify-content: center; }
+  .pg-hint > div > span { white-space: normal !important; text-align: center; }
+}
+/* No keyboard or mouse: the Ctrl + Alt chip and "move the pointer" hint don't apply; tap the notch,
+   or use "Tahan untuk bertanya" in the panel. */
+@media (hover: none) {
+  .pg-hold { display: none !important; }
+  .pg-hint-mouse { display: none !important; }
+}

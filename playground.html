@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Playground · aina</title>
+  <meta name="description" content="Coba aina langsung di browser: notch, tanya layar dengan Ctrl + Alt, dan kursor yang menunjuk langsung ke tombolnya.">
+  <link rel="canonical" href="https://aina.ai.id/playground">
+  <meta property="og:title" content="Playground · aina">
+  <meta property="og:description" content="Coba aina langsung di browser, tanpa memasang apa pun.">
+  <meta property="og:url" content="https://aina.ai.id/playground">
+  <meta property="og:image" content="https://aina.ai.id/img/og-image.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;600&family=Caveat:wght@600;700&family=Noto+Serif:ital,wght@0,400;1,400&display=swap">
+  <link rel="stylesheet" href="/playground.css">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <style>
+    /* The small-screen notice: the playground is a desktop, so on a phone it says so once. */
+    .pg-note { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: flex-end; justify-content: center; padding: 16px; background: rgba(6, 19, 52, .55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font-family: Urbanist, "Segoe UI", sans-serif; animation: pgNoteIn .25s ease both; }
+    .pg-note[hidden] { display: none; }
+    .pg-note-card { width: min(420px, 100%); background: #fff; color: #061334; border-radius: 20px; padding: 22px 20px 18px; box-shadow: 0 30px 80px rgba(0, 0, 0, .35); display: flex; flex-direction: column; gap: 12px; }
+    .pg-note-card img { width: 40px; height: 40px; }
+    .pg-note-card h2 { margin: 0; font-size: 22px; line-height: 1.2; letter-spacing: -.02em; }
+    .pg-note-card p { margin: 0; font-size: 15px; line-height: 1.55; color: #3a4458; }
+    .pg-note-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .pg-note-actions button, .pg-note-actions a { height: 48px; border-radius: 12px; font: 700 15.5px Urbanist, sans-serif; display: flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; }
+    .pg-note-actions button { border: 0; background: #0058F5; color: #fff; }
+    .pg-note-actions a { border: 1px solid rgba(6, 19, 52, .12); background: #fff; color: #061334; }
+    @keyframes pgNoteIn { from { opacity: 0; } to { opacity: 1; } }
+    @media (min-width: 641px) { .pg-note { align-items: center; } }
+    @media (prefers-reduced-motion: reduce) { .pg-note { animation: none; } }
+  </style>
+</head>
+<body>
+<div id="playground"></div>
+<div class="pg-note" id="pg-note" role="dialog" aria-modal="true" aria-labelledby="pg-note-title" hidden>
+  <div class="pg-note-card">
+    <img src="/img/aina-mark.png" alt="">
+    <h2 id="pg-note-title">Paling pas di laptop atau PC</h2>
+    <p>Playground ini meniru layar Windows lengkap dengan notch aina, jadi di layar HP tampilannya tidak maksimal. Kamu tetap bisa mencobanya: ketuk notch di atas layar, atau tekan <b>Coba aina</b>.</p>
+    <div class="pg-note-actions">
+      <button type="button" id="pg-note-ok">Tetap coba</button>
+      <a href="/">Kembali ke beranda</a>
+    </div>
+  </div>
+</div>
+<script>
+  // Once per visit on a phone-sized or touch-only screen; the choice is remembered for this tab.
+  (function () {
+    var note = document.getElementById('pg-note');
+    var small = window.matchMedia('(max-width: 640px), (hover: none) and (pointer: coarse)').matches;
+    var seen = false;
+    try { seen = sessionStorage.getItem('pg-note-seen') === '1'; } catch (e) {}
+    if (!small || seen) return;
+    note.hidden = false;
+    var ok = document.getElementById('pg-note-ok');
+    ok.focus();
+    ok.addEventListener('click', function () {
+      note.hidden = true;
+      try { sessionStorage.setItem('pg-note-seen', '1'); } catch (e) {}
+    });
+  })();
+</script>
+<noscript><p style="color:#fff;padding:24px;font-family:sans-serif">Playground aina butuh JavaScript. <a href="/" style="color:#9CD0FF">Kembali ke beranda</a>.</p></noscript>
+<script type="module" src="/playground.js"></script>
+</body>
+</html>
