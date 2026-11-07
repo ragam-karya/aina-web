@@ -1,4 +1,5 @@
-# Deploys the landing page to Cloudflare (Worker "aina-landing", static assets only) on every push to main.
+# Deploys the landing page to Cloudflare (Worker "aina-landing": static assets plus worker.js, the /api proxy
+# to badi-cloud) on every push to main.
 # Needs two repository secrets: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID (see README).
 name: Deploy
 
@@ -23,6 +24,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # The action's default Wrangler is too old for an assets-only Worker (no `main`).
+          # The action's default Wrangler is too old for this config (assets with run_worker_first).
           wranglerVersion: "4"
           command: deploy
