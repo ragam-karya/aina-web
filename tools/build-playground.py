@@ -39,6 +39,59 @@ cls_start = next(i for i, l in enumerate(lines) if l.startswith('class Component
 cls_end = max(i for i, l in enumerate(lines) if l.startswith('</script>'))
 logic = '\n'.join(lines[cls_start:cls_end])
 
+# The notch's page indicator as aina-notch draws it (ui/src/ui/overlay.html, island.js): dots and a pill
+# on the open page; hovered, the row widens into each page's icon (outline, filled on the pill), and a
+# page whose thing is running (timer, music) keeps a pulsing badge. Styles: .pg-dots in SMALL below.
+DOTS_OLD = '''            <div style="display:flex;justify-content:center;gap:5px;padding-top:9px">
+              <sc-for list="{{ dots }}" as="d" hint-placeholder-count="8">
+                <button sc-camel-on-click="{{ d.onClick }}" title="{{ d.label }}" style="width:{{ d.w }}px;height:6px;border-radius:999px;border:0;padding:0;background:{{ d.bg }};cursor:pointer;transition:width .25s cubic-bezier(.2,.85,.25,1),background .2s ease"></button>
+              </sc-for>
+            </div>'''
+DOTS_NEW = '''            <div class="pg-dots">
+              <div class="pg-dtrack" style="--i:{{ pageIdx }}">
+                <span class="pg-pind"></span>
+                <sc-for list="{{ dots }}" as="d"><button type="button" class="{{ d.cls }}" sc-camel-on-click="{{ d.onClick }}" title="{{ d.label }}" aria-label="{{ d.label }}" aria-current="{{ d.cur }}">{{ d.icon }}</button></sc-for>
+              </div>
+            </div>'''
+assert template.count(DOTS_OLD) == 1, 'dots markup'
+template = template.replace(DOTS_OLD, DOTS_NEW)
+DOTS_VALS_OLD = "      dots: this.pages.map((label, i) => ({ label, w: i === s.page ? 18 : 6, bg: i === s.page ? '#eef2f8' : 'rgba(255,255,255,.22)', onClick: () => this.setState({ page: i }) })),"
+DOTS_VALS_NEW = ("      dots: this.pages.map((label, i) => { const on = i === s.page; const live = PAGE_LIVE[i] && PAGE_LIVE[i](s);"
+                 " return { label, cur: on ? 'page' : null, icon: ico(PAGE_ICONS[i][on ? 1 : 0], 13),"
+                 " cls: 'pg-pdot' + (on ? ' on' : '') + (live ? ' live k-' + live : ''), onClick: () => this.setState({ page: i }) }; }),\n"
+                 "      pageIdx: s.page,")
+assert logic.count(DOTS_VALS_OLD) == 1, 'dots values'
+logic = logic.replace(DOTS_VALS_OLD, DOTS_VALS_NEW)
+
+icons = json.load(open(__file__.replace('build-playground.py', 'io5-icons.json'), encoding='utf-8'))['icons']
+ICON_JS = '''// Page icons (Ionicons 5 from react-icons 5.7.0, MIT; data in tools/io5-icons.json), drawn the way
+// react-icons' GenIcon and aina-notch's badiReactIcon draw them: fill and stroke in currentColor.
+const IO5 = %s;
+// [at rest, open] per page, in the order of Playground.pages.
+const PAGE_ICONS = [
+  ['IoHomeOutline', 'IoHome'], ['IoTimerOutline', 'IoTimer'], ['IoNotificationsOutline', 'IoNotifications'],
+  ['IoMoonOutline', 'IoMoon'], ['IoMusicalNotesOutline', 'IoMusicalNotes'], ['IoFolderOpenOutline', 'IoFolderOpen'],
+  ['IoReaderOutline', 'IoReader'], ['IoSparklesOutline', 'IoSparkles'], ['IoShieldCheckmarkOutline', 'IoShieldCheckmark'],
+  ['IoLogoWhatsapp', 'IoLogoWhatsapp'],
+];
+// A page whose thing is running, and its badge color (k-timer, k-media), as in the notch.
+const PAGE_LIVE = { 1: (s) => s.timerRunning && 'timer', 4: (s) => s.playing && 'media' };
+const kebab = (k) => k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
+function icoNode(n, root) {
+  const a = {};
+  if (root) Object.assign(a, { fill: 'currentColor', stroke: 'currentColor', 'stroke-width': '0' });
+  for (const [k, v] of Object.entries(n.attr || {})) a[k === 'viewBox' ? k : kebab(k)] = v;
+  return h(n.tag, a, (n.child || []).map((c) => icoNode(c, false)));
+}
+function ico(name, size) {
+  const t = IO5[name];
+  if (!t) return null;
+  const svg = icoNode(t, true);
+  Object.assign(svg.props, { width: size, height: size, 'aria-hidden': 'true' });
+  return svg;
+}
+''' % json.dumps(icons, ensure_ascii=False, separators=(',', ':'))
+
 ASSETS = {
     '38dd91e0-f798-459b-b84c-f230c06a0ee9': '/img/aina-mark.png',
     'f116f114-6cee-4afe-8c1d-5bbdcfbbee51': '/img/aina-logo-light.png',
@@ -190,16 +243,37 @@ js = '''// aina Playground: a simulated Windows desktop with the aina notch, to 
 // regenerate rather than editing view() by hand.
 import { h, render, Component } from 'https://cdn.jsdelivr.net/npm/preact@10.24.3/dist/preact.module.js';
 
+%s
 function view(v) {
   return %s;
 }
 
 %s
 render(h(Playground, null), document.getElementById('playground'));
-''' % (view, logic)
+''' % (ICON_JS, view, logic)
 
 open(out_js, 'w', encoding='utf-8', newline='\n').write(js)
 SMALL = '''
+/* The notch's page indicator, as in aina-notch (overlay.html: .peek .dots). */
+.pg-dots { display: flex; justify-content: center; padding-top: 7px; --slot: 14px; --pop: cubic-bezier(.34, 1.5, .6, 1); }
+.pg-dots:hover { --slot: 30px; }
+.pg-dtrack { position: relative; display: flex; }
+.pg-pind { position: absolute; left: 1px; top: 50%; width: calc(var(--slot) - 2px); height: 5px; border-radius: 999px; background: #eef2f8; transform: translate(calc(var(--i, 0) * var(--slot)), -50%); transition: transform .44s cubic-bezier(.34, 1.4, .5, 1), width .3s var(--pop), height .3s var(--pop); }
+.pg-dots:hover .pg-pind { height: 20px; }
+.pg-pdot { position: relative; z-index: 1; width: var(--slot); height: 20px; display: grid; place-items: center; cursor: pointer; color: #8e9bb0; border: 0; padding: 0; background: none; transition: width .3s var(--pop), color .18s ease; }
+.pg-pdot::before { content: ""; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: color-mix(in srgb, #8e9bb0 75%, transparent); transition: opacity .18s ease, transform .3s var(--pop); }
+.pg-pdot > * { opacity: 0; transform: scale(.5); transition: opacity .18s ease, transform .3s var(--pop); }
+.pg-dots:hover .pg-pdot::before, .pg-pdot.on::before { opacity: 0; transform: scale(.4); }
+.pg-dots:hover .pg-pdot > * { opacity: 1; transform: none; }
+.pg-dots:hover .pg-pdot:hover { color: #eef2f8; }
+.pg-pdot.on { color: #000 !important; }
+.pg-pdot:focus-visible { outline: 2px solid #5aa9ff; outline-offset: 1px; border-radius: 6px; }
+.pg-pdot.live::before { background: var(--k); }
+.pg-pdot.k-timer { --k: #ff8a3d; }
+.pg-pdot.k-media { --k: #a78bfa; }
+.pg-pdot.live::after { content: ""; position: absolute; top: -1px; right: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--k); box-shadow: 0 0 0 2px #000, 0 0 6px var(--k); animation: pulse 1.6s ease-in-out infinite; }
+.pg-dots:not(:hover) .pg-pdot.live::after { display: none; }
+
 /* Phones and touch screens (not in the design, which is laid out for a desktop). The pg-* classes are
    hooks tools/build-playground.py adds; !important beats the design's inline styles. */
 @media (max-width: 640px) {
@@ -213,6 +287,12 @@ SMALL = '''
 /* No keyboard or mouse: the Ctrl + Alt chip and "move the pointer" hint don't apply; tap the notch,
    or use "Tahan untuk bertanya" in the panel. */
 @media (hover: none) {
+  /* Nothing to hover: the icons stay out, so the pages can be told apart and tapped. */
+  .pg-dots { --slot: 30px; }
+  .pg-dots .pg-pind { height: 20px; }
+  .pg-dots .pg-pdot::before { opacity: 0; }
+  .pg-dots .pg-pdot > * { opacity: 1; transform: none; }
+  .pg-dots:not(:hover) .pg-pdot.live::after { display: block; }
   .pg-hold { display: none !important; }
   .pg-hint-mouse { display: none !important; }
 }
