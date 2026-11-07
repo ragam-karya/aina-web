@@ -8,6 +8,8 @@ Halaman akun juga ada di sini: `masuk.html`, `langganan.html`, dan `terima-kasih
 
 Desainnya mengikuti `aina Landing.dc.html` dari paket handoff desain aina 1.0. Animasi memakai GSAP 3.12 + ScrollTrigger dari CDN jsDelivr. Tanpa GSAP halaman tetap terbaca, hanya demonya diam.
 
+Playground (`/playground`: `playground.html`, `playground.js`, `playground.css`) adalah simulasi desktop Windows dengan notch aina untuk dicoba di browser. `playground.js` dan `playground.css` dibuat dari desain "aina Playground" oleh `tools/build-playground.py` (Preact dari CDN, tanpa build). Ubah desainnya lalu jalankan ulang skrip itu, jangan edit `view()` dengan tangan. Di layar HP, aturan di akhir `playground.css` merapikan tata letaknya dan `playground.html` menampilkan pemberitahuan sekali bahwa halaman ini paling pas di laptop atau PC.
+
 ## Lihat di komputer sendiri
 
 Buka `index.html` langsung di browser, atau jalankan server statis dari folder ini:
