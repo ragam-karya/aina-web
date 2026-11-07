@@ -10,6 +10,8 @@ Desainnya mengikuti `aina Landing.dc.html` dari paket handoff desain aina 1.0. A
 
 Playground (`/playground`: `playground.html`, `playground.js`, `playground.css`) adalah simulasi desktop Windows dengan notch aina untuk dicoba di browser. `playground.js` dan `playground.css` dibuat dari desain "aina Playground" oleh `tools/build-playground.py` (Preact dari CDN, tanpa build). Ubah desainnya lalu jalankan ulang skrip itu, jangan edit `view()` dengan tangan. Di layar HP, aturan di akhir `playground.css` merapikan tata letaknya dan `playground.html` menampilkan pemberitahuan sekali bahwa halaman ini paling pas di laptop atau PC.
 
+SEO: `robots.txt` dan `sitemap.xml` (beranda dan `/playground`) ada di folder ini. Data terstruktur (JSON-LD: Organization, WebSite, SoftwareApplication beserta harga paket) ada di `<head>` `index.html`, jadi perbarui harganya di sana kalau daftar harga berubah. `404.html` dipakai untuk alamat yang tidak ada. `www.aina.ai.id` dialihkan ke `aina.ai.id` untuk beranda, `/playground`, halaman akun, dan `/api`.
+
 ## Lihat di komputer sendiri
 
 Buka `index.html` langsung di browser, atau jalankan server statis dari folder ini:
