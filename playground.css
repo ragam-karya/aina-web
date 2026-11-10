@@ -96,3 +96,850 @@ button{font-family:inherit}
   .pg-hold { display: none !important; }
   .pg-hint-mouse { display: none !important; }
 }
+
+/* ---- the notch, from aina-notch ---- */
+  /* Dynamic Island: a notch joined to the top edge of the screen. island.js springs its size
+     (--w, --h, --r, --ear); the content is laid out at its final width and only clipped, so text
+     never reflows while the notch grows. */
+  #island {
+    position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+    width: var(--w, 128px); height: var(--h, 8px);
+    color: #fff; pointer-events: none; opacity: 0; transition: opacity .25s ease;
+    /* Dragging a page sideways must not select the clock or the weather. A dictation note can still
+       be selected to copy from. */
+    user-select: none;
+  }
+  #island .note { user-select: text; }
+  #island.here { opacity: 1; }
+  /* A full-screen app: hidden (and slid up) until the cursor calls it up at the top. */
+  #island.here.fs-hidden { opacity: 0; transform: translate(-50%, -100%); transition: opacity .2s ease, transform .25s ease; }
+  #island.here:not(.fs-hidden) { transition: opacity .25s ease, transform .3s var(--ease-out, ease); }
+  /* The concave "ears" that blend the notch into the screen edge. */
+  #island::before, #island::after {
+    content: ''; position: absolute; top: 0; width: var(--ear, 6px); height: var(--ear, 6px);
+  }
+  /* The ears overlap the notch by 1px so no seam shows at fractional widths. */
+  #island::before { right: calc(100% - 1px); background: radial-gradient(circle at 0 100%, transparent calc(var(--ear, 6px) - .5px), #000 var(--ear, 6px)); }
+  #island::after { left: calc(100% - 1px); background: radial-gradient(circle at 100% 100%, transparent calc(var(--ear, 6px) - .5px), #000 var(--ear, 6px)); }
+  #island .shape {
+    position: absolute; inset: 0; background: #000; overflow: hidden;
+    border-radius: 0 0 var(--r, 8px) var(--r, 8px);
+    box-shadow: 0 8px 26px rgba(0,0,0,0);
+    transition: box-shadow .3s ease;
+  }
+  /* Open: a soft shadow tinted with the mode's color (--glow: blue by default, the timer orange, music
+     violet, a question orange, an error red), and a faint light line along the bottom edge. */
+  #island { --glow: #2b8aff; }
+  #island.open .shape { box-shadow: 0 8px 26px rgba(0,0,0,.35), 0 18px 46px -18px color-mix(in srgb, var(--glow) 80%, transparent), inset 0 -1px 0 rgba(255,255,255,.08); }
+  #island.mode-mini .shape { box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--glow) 67%, transparent); }
+  /* The ambient glow inside the notch: a pool of the mode's color rising from the bottom edge. */
+  #island .glow { position: absolute; left: 0; right: 0; bottom: 0; height: 80%; pointer-events: none; opacity: 0; transition: opacity .45s ease;
+    background: radial-gradient(ellipse 55% 100% at 50% 100%, color-mix(in srgb, var(--glow) 22%, transparent), transparent 72%); }
+  #island .glow::after { content: ''; position: absolute; left: 18%; right: 18%; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--glow) 70%, transparent), transparent); }
+  #island.open .glow { opacity: 1; }
+  #island .content {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    box-sizing: border-box; padding: 14px 16px 14px 14px;
+    opacity: 0; transition: opacity .14s ease;
+  }
+  #island.open .content { opacity: 1; transition: opacity .22s ease .08s; }
+  /* The turn row: aina (42 px) on the left, the phase and what was said beside him, Esc on the right. */
+  #island .row { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+  #island .rcol { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  #island .rtop { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  #island .kbd.esc { display: none; }
+  #island.mode-turn .kbd.esc { display: inline-block; }
+  #island .kbd { flex: none; font: 11px Consolas, "Cascadia Mono", monospace; color: var(--c-sub, #8e9bb0); border: 1px solid rgba(255,255,255,.14); border-radius: 5px; padding: 1px 6px; }
+  #island .orb {
+    width: 36px; height: 36px; border-radius: 50%; flex: none; margin: 3px;
+    background: radial-gradient(circle at 35% 30%, #9cd0ff, #2b8aff 55%, #0b4fb3);
+    box-shadow: 0 0 12px rgba(43,138,255,.8);
+  }
+  #island.dictation .orb { background: radial-gradient(circle at 35% 30%, #ffd0a8, #ff8a3d 55%, #b34a0b); box-shadow: 0 0 12px rgba(255,138,61,.8); }
+  /* aina himself (Rive aina-mascot.riv, Compact 128x128, transparent) replaces the orb once he loads. */
+  #island canvas.face { display: none; width: 42px; height: 42px; flex: none; margin: 0; }
+  #island.has-face canvas.face { display: block; }
+  #island.has-face .orb { display: none; }
+  /* If he can't load: the old eyes (Rive aina-eyes.riv BADI_Eyes, 140x60) in his place. */
+  #island canvas.eyes { display: none; width: 47px; height: 20px; flex: none; margin: 0 -2px 0 -4px; }
+  #island.has-eyes canvas.eyes { display: block; }
+  #island.has-eyes .orb { display: none; }
+  #island.error .orb { background: radial-gradient(circle at 35% 30%, #ffb3b8, #ff3b47 55%, #a1121c); box-shadow: 0 0 12px rgba(255,59,71,.8); }
+  #island .label { font-size: 13px; font-weight: 700; letter-spacing: .01em; color: var(--glow-text, #5aa9ff); white-space: nowrap; flex: none; transition: color .3s ease; }
+  #island canvas.wave { width: 96px; height: 18px; flex: none; }
+  #island .body { display: none; padding: 0 4px 0 54px; }
+  #island.expanded .body { display: block; animation: rise .34s var(--ease-out) both; }
+  /* Shared motion: things arrive from slightly above, a touch small and out of focus, and settle. */
+  #island { --ease-out: cubic-bezier(.2, .85, .25, 1); --ease-pop: cubic-bezier(.34, 1.5, .6, 1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(-6px) scale(.985); filter: blur(3px); } }
+  #island .content.view-in > * { animation: view-in .24s var(--ease-out) both; }
+  @keyframes view-in { from { opacity: 0; filter: blur(4px); transform: scale(.98); } }
+  #island .label.swap { animation: swap .26s var(--ease-out) both; }
+  @keyframes swap { from { opacity: 0; transform: translateY(4px); filter: blur(2px); } }
+  #island .you { color: #8e9bb0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .you:empty { display: none; }
+  #island .say { font-size: 16px; line-height: 1.45; margin: 8px 0 2px; white-space: pre-wrap; overflow-wrap: anywhere; color: #eef2f8; }
+  #island .say:empty { margin: 0; }
+  #island .say.typing::after { content: ''; display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: -2px; background: #5aa9ff; animation: caret .8s steps(1) infinite; }
+  @keyframes caret { 50% { opacity: 0; } }
+
+  /* Smart notch: what shows depends on the mode (rest, mini, turn, panel, peek). Buttons only take
+     clicks while the cursor is on the notch (the overlay is click-through otherwise). */
+  #island.hover { pointer-events: auto; }
+  #island button {
+    font: 600 12.5px Urbanist, "Segoe UI Variable Text", "Segoe UI", sans-serif; color: #e9eef6; cursor: pointer;
+    background: rgba(255,255,255,.1); border: 0; border-radius: 999px; padding: 5px 12px;
+    display: inline-flex; align-items: center; gap: 2px;
+    transition: background .18s ease, color .18s ease, transform .35s var(--ease-pop);
+  }
+  #island button:hover { background: rgba(255,255,255,.18); transform: translateY(-1px); }
+  #island button:active { transform: scale(.92); transition-duration: .08s; }
+  #island button .ico { flex: none; }
+  #island button.primary { background: #2b8aff; color: #fff; font-weight: 700; }
+  #island button.primary:hover { background: #4a9bff; }
+  #island button.danger { background: rgba(255,90,100,.18); color: #ffb3b8; }
+  #island button.danger:hover { background: rgba(255,90,100,.28); }
+  /* Icon-only buttons: round, quiet until hovered. */
+  #island button.icon { width: 28px; height: 28px; padding: 0; justify-content: center; background: transparent; color: #b9c3d3; flex: none; }
+  #island button.icon:hover { background: rgba(255,255,255,.12); color: #fff; }
+  #island button.icon.danger { background: rgba(255,90,100,.14); color: #ff8a92; width: 32px; height: 32px; }
+  #island button.icon.danger:hover { background: rgba(255,90,100,.26); color: #ffb3b8; }
+  #island button.icon.play { background: #fff; color: #000; width: 32px; height: 32px; }
+  #island button.icon.play:hover { background: #fff; transform: scale(1.07); }
+  #island button.tile { background: rgba(255,255,255,.07); padding: 6px 11px 6px 9px; gap: 6px; font-weight: 500; color: #dfe6f0; }
+  #island button.tile:hover { background: rgba(255,255,255,.14); }
+  #island button.tile .ico { color: #8fb8ff; }
+  #island .panel, #island .peek, #island .mini { display: none; }
+  #island.mode-panel .body, #island.mode-peek .body, #island.mode-peek .row, #island.mode-mini .row, #island.mode-mini .body { display: none; }
+  #island.has-panel .panel { display: block; animation: rise .34s var(--ease-out) both; }
+  #island.mode-panel canvas.wave { display: none; }
+  #island .panel { padding-left: 54px; }
+  #island .panel .lines { color: #b9c3d3; font-size: 13px; line-height: 1.45; margin: 4px 0 2px; }
+  #island .panel .lines div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .panel .ptitle { color: #e9eef6; font-weight: 600; }
+  #island .panel .lines .note { white-space: normal; overflow-y: auto; max-height: 150px; margin: 8px 0 0; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.055); font-size: 12.5px; line-height: 1.55; color: #eef2f8; overscroll-behavior: contain; }
+  #island .panel .lines .note div { white-space: pre-wrap; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+  #island .panel .lines .plist { white-space: normal; overflow-y: auto; max-height: 280px; margin: 6px -4px 0 0; padding-right: 6px; overscroll-behavior: contain; }
+  #island .panel .lines .plist div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .prow { display: flex; align-items: center; gap: 4px; border-radius: 10px; }
+  #island .prow:hover { background: rgba(255,255,255,.07); }
+  #island .prow .pmain { flex: 1; min-width: 0; text-align: left; background: transparent; border-radius: 10px; padding: 6px 8px; display: block; color: inherit; font: inherit; }
+  #island .prow .pmain:hover { background: transparent; }
+  #island .prow .main { color: #e9eef6; font-size: 13px; }
+  #island .prow .sub { color: #8b96a8; font-size: 11.5px; }
+  #island .plist::-webkit-scrollbar { width: 6px; }
+  #island .plist::-webkit-scrollbar-thumb { background: rgba(255,255,255,.22); border-radius: 3px; }
+  #island .note-summary { background: rgba(255,255,255,.07); border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; }
+  #island .note-label { color: #8fb8ff; font-size: 11.5px; font-weight: 600; margin-bottom: 2px; }
+  #island .note::-webkit-scrollbar { width: 6px; }
+  #island .note::-webkit-scrollbar-thumb { background: rgba(255,255,255,.22); border-radius: 3px; }
+  #island.mode-panel .panel .ptitle { display: none; }
+  #island .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; margin: 10px 0 0; }
+  #island .actions:empty { display: none; }
+  #island .actions button { height: 32px; padding: 0 14px; background: rgba(255,255,255,.07); color: #eef2f8; }
+  #island .actions button:hover { background: rgba(255,255,255,.12); }
+  #island .actions button.primary { background: #2b8aff; color: #fff; padding: 0 18px; box-shadow: 0 0 0 3px rgba(43,138,255,.25); }
+  #island .actions button.primary:hover { background: #4a9bff; }
+  #island .actions button.danger { background: rgba(255,90,100,.18); color: #ff5a64; }
+  /* A question waiting for the person: its label orange, "Minta izin", over the question in large type. */
+  #island.waiting .say { font-size: 16px; }
+  /* A panel's single line sits under its title (beside aina), not below him. */
+  #island.panel-sub .panel .lines > div:not(.note):not(.plist):not(.ptitle) { display: none; }
+  /* A short panel (a notice, credits out) is one row: aina, the title over its line, its buttons. */
+  #island.panel-compact .content { display: flex; align-items: center; gap: 12px; }
+  #island.panel-compact .row { flex: 1; min-width: 0; }
+  #island.panel-compact .panel { flex: none; padding-left: 0; animation: none; }
+  #island.panel-compact .panel .lines { display: none; }
+  #island.panel-compact .actions { margin: 0; flex-wrap: nowrap; }
+
+  /* One shell, one design language: every mode and page of the notch draws from these tokens (type
+     scale, spacing, radii, status colors, motion), so pages differ only in what they show. */
+  #island {
+    --fs-xs: 11px; --fs-sm: 12px; --fs-md: 13px; --fs-lg: 14px; --fs-display: 26px;
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px;
+    --r-card: 14px; --r-tile: 10px; --r-pill: 999px;
+    --c-text: #eef2f8; --c-sub: #8e9bb0; --c-track: rgba(255,255,255,.14);
+    --c-surface: rgba(255,255,255,.055); --c-surface-2: rgba(255,255,255,.09);
+    --c-accent: #5aa9ff; --c-timer: #ff8a3d; --c-ok: #3ddc97; --c-music: #a78bfa; --c-warn: #ffb27a; --c-danger: #ff5a64;
+    --t-page: 220ms;
+  }
+  @keyframes pulse { 50% { opacity: .35; transform: scale(.8); } }
+  @keyframes eq { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+
+  /* ---- compact (the mini pill): aina on the left, what is going on on the right ---- */
+  #island.mode-mini .mini { display: flex; }
+  #island .mini {
+    position: absolute; inset: 0; box-sizing: border-box; padding: 0 14px 0 8px; align-items: center; justify-content: space-between; gap: 12px;
+    white-space: nowrap; font-size: var(--fs-md); font-weight: 600; color: var(--c-text); animation: rise .26s var(--ease-out) both;
+  }
+  #island .mini-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  #island .dot { width: 8px; height: 8px; border-radius: 50%; background: #f5a524; animation: pulse 1.4s ease-in-out infinite; flex: none; }
+  #island .mini-ring, #island .mini-ico { display: none; flex: none; }
+  #island .mini-text { color: var(--c-text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  #island .mini-text:empty { display: none; }
+  #island .mini-sub { color: var(--c-sub); font-size: var(--fs-xs); font-weight: 500; font-variant-numeric: tabular-nums; }
+  #island .mini-sub:empty { display: none; }
+  #island .mini.kind-timer .dot, #island .mini.kind-focus .dot, #island .mini.kind-none .dot { display: none; }
+  #island .mini.kind-timer .mini-ring { display: block; height: 18px; }
+  #island .mini.kind-timer .mini-text { font-weight: 700; font-variant-numeric: tabular-nums; }
+  #island .mini.kind-focus .mini-ico { display: block; height: 16px; color: #8fb8ff; }
+  #island .mini.kind-focus .mini-ico svg { width: 16px; height: 16px; }
+  /* A song playing: the violet shadow under the pill drifts slowly from side to side (the pill itself
+     holds only the lyric). A light under the notch, behind its shape, so it shows only below it. */
+  #island .uglow { position: absolute; left: 0; right: 0; top: calc(100% - 14px); height: 30px; pointer-events: none; opacity: 0; transition: opacity .4s ease; }
+  #island .uglow::before { content: ''; position: absolute; top: 0; left: 0; width: 45%; height: 100%; border-radius: 50%;
+    background: radial-gradient(ellipse 50% 50% at 50% 50%, color-mix(in srgb, var(--c-music) 75%, transparent), transparent 72%);
+    filter: blur(7px); animation: uglow-drift 4.5s ease-in-out infinite alternate; animation-play-state: paused; }
+  #island.mode-mini.mini-music .uglow { opacity: 1; }
+  #island.mode-mini.mini-music .uglow::before { animation-play-state: running; }
+  /* The still shadow gives way to the drifting one. */
+  #island.mode-mini.mini-music .shape { box-shadow: 0 4px 12px -8px color-mix(in srgb, var(--c-music) 50%, transparent); }
+  @keyframes uglow-drift { from { transform: translateX(-8%); } to { transform: translateX(130%); } }
+  @media (prefers-reduced-motion: reduce) { #island .uglow::before { animation: none; transform: translateX(61%); } }
+  #island .ring .ring-bg { stroke: var(--c-track); }
+  #island .ring .ring-fg { stroke: var(--c-timer); transition: stroke-dashoffset .9s linear; }
+
+  /* ---- interactive (the hover peek): the clock and weather on the left, one page on the right ----
+     800 x 256 on every page, so the notch never changes size while paging; a long page scrolls. */
+  #island.mode-peek .content { padding: 16px 20px 8px 22px; height: 256px; }
+  #island.mode-peek .peek { display: block; height: 100%; animation: rise .26s var(--ease-out) both; }
+  #island .peek { position: relative; }
+  #island .peek-body { display: grid; grid-template-columns: 196px 1px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; height: 100%; }
+  #island .peek-body.empty { grid-template-columns: minmax(0, 1fr); }
+  #island .peek-body.empty .vsep, #island .peek-body.empty .pmain-col { display: none; }
+  #island .peek .vsep { background: rgba(255,255,255,.08); margin-bottom: 8px; }
+  /* The left column: the clock (with aina beside it), the date, the weather, the credits left. */
+  #island .peek .top { display: flex; flex-direction: column; gap: 2px; padding: 4px 0 8px; min-width: 0; min-height: 0; }
+  #island .peek .clock { font-size: 32px; font-weight: 700; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  #island .peek .clock .sep { animation: tick 2s steps(1) infinite; }
+  @keyframes tick { 50% { color: color-mix(in srgb, var(--c-text) 35%, transparent); } }
+  #island .peek .date { color: var(--c-sub); font-size: var(--fs-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* aina beside the clock: the same canvas as in the turn row, moved here while the peek is open. */
+  /* aina between the clock and the weather, a little larger than in the turn row. */
+  #island .peek-mascot { display: none; flex: none; width: 60px; height: 60px; margin: 6px 0 -4px -6px; }
+  #island.has-face .peek-mascot { display: block; }
+  #island .peek-mascot canvas.face { width: 60px; height: 60px; margin: 0; }
+  #island .peek .credits { margin-top: auto; display: flex; align-items: center; gap: 6px; color: var(--c-sub); font-size: var(--fs-xs); white-space: nowrap; }
+  #island .peek .credits .ico { color: var(--c-accent); }
+  #island .peek .credits button.clogin { margin-left: 2px; padding: 2px 10px; font-size: var(--fs-xs); font-weight: 700; background: #2b8aff; color: #fff; }
+  #island .peek .credits button.clogin:hover { background: #4a9bff; transform: none; }
+  #island .peek .pmain-col { min-width: 0; min-height: 0; height: 100%; display: flex; flex-direction: column; }
+  /* The page's header: its title, and the arrows to the pages either side. */
+  #island .peek .phd { flex: none; height: 28px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  #island .peek .phd .ptitle { font-size: var(--fs-lg); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .phd .parrows { display: flex; align-items: center; gap: 2px; flex: none; }
+  #island .peek button.parrow { width: 28px; height: 28px; padding: 0; justify-content: center; border-radius: 8px; background: transparent; color: #8fb8ff; font-size: 18px; line-height: 1; }
+  #island .peek button.parrow:hover { background: rgba(255,255,255,.08); transform: none; }
+  #island .peek button.parrow:disabled { opacity: .25; pointer-events: none; }
+  /* A page: what fills the column under the header; a page longer than that scrolls inside it. */
+  #island .peek .page { flex: 1; min-height: 0; margin: 8px -10px 0 0; padding-right: 10px; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; touch-action: pan-y; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+  #island .peek .page:empty { display: none; }
+  #island .peek .page > .pfit { display: flex; flex-direction: column; gap: 8px; min-height: 100%; min-width: 0; }
+  /* One widget fills the page; more share it. */
+  #island .peek .page > .pfit > .item { flex: 1 0 auto; min-height: 0; }
+  #island .peek .page > .pfit > .shortcuts { margin: auto 0; }
+  #island .peek .page.dragging { cursor: grabbing; user-select: none; }
+  #island .peek .page.slide-next, #island .peek .page.slide-prev { animation: page-in .26s var(--ease-out) both; transform-origin: top center; }
+  @keyframes page-in { from { opacity: 0; transform: translateY(6px) scale(.985); filter: blur(2px); } }
+
+  /* Cards: the one surface every page uses. */
+  #island .peek .item { display: flex; align-items: center; gap: 10px; padding: 7px var(--sp-2) 7px 9px; border-radius: var(--r-card); background: var(--c-surface); font-size: var(--fs-md); transition: background .2s ease; }
+  #island .peek .item:hover { background: var(--c-surface-2); }
+  #island .peek .item .grow { flex: 1; min-width: 0; }
+  #island .peek .item .main, #island .track .main { font-size: var(--fs-lg); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--c-text); }
+  #island .peek .item .sub, #island .track .sub { color: var(--c-sub); font-size: var(--fs-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .more { display: inline-block; margin-left: 6px; color: var(--c-sub); font-size: var(--fs-xs); font-weight: 500; }
+  /* The tile that leads a card: an icon on a tint of its status color. */
+  #island .peek .lead { width: 32px; height: 32px; border-radius: var(--r-tile); flex: none; display: grid; place-items: center; --k: var(--c-accent); color: var(--k); background: color-mix(in srgb, var(--k) 15%, transparent); }
+  #island .peek .lead.green, #island .peek .lead.busy { --k: var(--c-ok); }
+  #island .peek .lead.warm { --k: var(--c-warn); }
+  #island .peek .lead.busy .ico { animation: twinkle 1.8s ease-in-out infinite; }
+  @keyframes twinkle { 50% { transform: scale(.82) rotate(18deg); opacity: .6; } }
+  /* A page's widget sits straight on the notch (the page is its card); its rows are the cards. */
+  #island .peek .widget { padding: 0; gap: var(--sp-3); background: transparent; border-radius: 0; }
+  #island .peek .widget:hover { background: transparent; }
+
+  /* Timer / pomodoro page. Each phase has its color (--k): focus orange, short break green, long
+     break blue; the ring, the countdown and the session segments follow it. Paused, everything
+     holds still (no ring easing, no pulsing) and the dial says so. */
+  #island .pomo, #island .mini { --k: var(--c-timer); }
+  #island .phase-short { --k: var(--c-ok); }
+  #island .phase-long { --k: var(--c-accent); }
+  #island .ring .ring-fg { stroke: var(--k, var(--c-timer)); }
+  #island .paused .ring .ring-fg { transition: none; }
+  /* The ring (124 px) with the countdown and the phase inside; presets, controls and today on the right. */
+  #island .peek .pomo { align-items: center; gap: 20px; padding: 0; }
+  #island .peek .dial { position: relative; width: 124px; height: 124px; flex: none; align-self: center; display: grid; place-items: center; align-content: center; gap: 2px; }
+  #island .peek .dial .ring { position: absolute; inset: 0; }
+  #island .peek .count { position: relative; font-variant-numeric: tabular-nums; color: var(--c-text); font-weight: 700; font-size: 24px; line-height: 1.1; }
+  #island .peek .dstate { position: relative; color: var(--k); font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; }
+  #island .peek .paused .count { opacity: .75; }
+  #island .peek .pomo .grow { display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+  #island .peek .pomo .pctl { gap: 8px; flex-wrap: wrap; }
+  #island .peek .pomo .pctl button { height: 32px; padding: 0 12px; background: rgba(255,255,255,.07); color: var(--c-text); gap: 6px; }
+  #island .peek .pomo .pctl button:hover { background: rgba(255,255,255,.12); }
+  #island .peek .pomo .pctl button.primary { padding: 0 14px; background: #2b8aff; color: #fff; }
+  #island .peek .pomo .pctl button.primary:hover { background: #4a9bff; filter: none; }
+  #island .peek .pomo .pctl button.danger { background: rgba(255,90,100,.18); color: #ff5a64; }
+  #island .peek .pomo .pctl button.icon { width: 32px; padding: 0; background: transparent; color: var(--c-sub); }
+  #island .peek .pomo .pctl button.icon:hover { color: var(--c-text); background: rgba(255,255,255,.08); }
+  #island .peek .pstats { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--fs-xs); color: var(--c-sub); align-items: baseline; }
+  #island .peek .pstats b { color: var(--c-text); font-size: var(--fs-md); margin-right: 3px; font-variant-numeric: tabular-nums; }
+  #island .peek .phead { display: flex; align-items: baseline; gap: var(--sp-2); min-width: 0; }
+  #island .peek .phead .main { flex: none; color: var(--k); }
+  #island .peek .phead .sub { flex: 1; min-width: 0; }
+  #island .peek .meta { display: flex; align-items: center; gap: 10px; color: var(--c-sub); font-size: var(--fs-xs); white-space: nowrap; min-width: 0; }
+  #island .peek .rounds { display: flex; gap: 3px; flex: none; }
+  #island .peek .rounds .r { width: 12px; height: 5px; border-radius: 3px; background: var(--c-track); transition: background .3s ease; }
+  #island .peek .rounds .r.done { background: var(--k); opacity: .55; }
+  #island .peek .rounds .r.now { background: var(--k); animation: pulse 1.6s ease-in-out infinite; }
+  #island .peek .paused .rounds .r.now { animation: none; }
+  #island .peek .ends { display: flex; align-items: center; gap: var(--sp-1); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .today { color: var(--c-sub); font-size: var(--fs-xs); white-space: nowrap; }
+  #island .peek .ptags { color: var(--c-sub); font-size: var(--fs-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Its controls: start/pause filled in the phase color, then skip, reset, stop; settings at the end. */
+  #island .peek .pctl { display: flex; align-items: center; gap: 2px; }
+  #island .peek .pctl button.icon { width: 28px; height: 28px; }
+  #island .peek .pctl button.primary-ic { width: 32px; height: 32px; background: var(--k); color: #000; }
+  #island .peek .pctl button.primary-ic:hover { background: var(--k); transform: scale(1.07); }
+  #island .peek .pctl button.primary { background: var(--k); color: #000; padding: 5px 14px 5px 11px; }
+  #island .peek .pctl button.primary:hover { background: var(--k); filter: brightness(1.1); }
+  #island .peek .pctl .end { margin-left: auto; }
+  #island .peek .pctl .today { margin-left: var(--sp-2); }
+  /* Before starting: the presets as chips (the chosen one filled blue). */
+  #island .peek .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  #island .peek button.chip { padding: 3px 10px; font-size: var(--fs-xs); font-weight: 600; background: var(--c-surface-2); color: var(--c-sub); font-variant-numeric: tabular-nums; }
+  #island .peek button.chip.on { background: color-mix(in srgb, var(--k) 22%, transparent); color: var(--k); }
+  #island .peek .pomo .presets button.chip { padding: 5px 11px; font-size: var(--fs-sm); background: rgba(255,255,255,.07); color: var(--c-text); }
+  #island .peek .pomo .presets button.chip.on { background: #2b8aff; color: #fff; }
+  /* Focus page: green is focus's color (as in the mini pill); the running time ticks in the header. */
+  #island .peek .focuspage { --k: var(--c-ok); align-items: flex-start; padding: 0; }
+  #island .peek .focuspage .grow { display: flex; flex-direction: column; gap: 8px; }
+  /* Running: the work on the left (folder, goal, the edit lock, the buttons), its pomodoros on the right. */
+  #island .peek .focuspage.on { display: grid; grid-template-columns: minmax(0, 1fr) 170px; gap: 14px; }
+  #island .peek .fhead { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  #island .peek .fhead .lead { width: 34px; height: 34px; color: #8fb8ff; background: rgba(255,255,255,.07); }
+  #island .peek .fhead .grow { gap: 0; }
+  #island .peek .fhead .main { font-size: var(--fs-md); font-weight: 700; }
+  #island .peek .fhead .fpath { color: var(--c-sub); font: 11px Consolas, "Cascadia Mono", monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .fhead .live { margin-left: auto; flex: none; color: var(--c-accent); font-size: var(--fs-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
+  #island .peek .fline { font-size: var(--fs-sm); line-height: 1.4; color: var(--c-text); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  #island .peek .fline .k { color: var(--c-sub); }
+  #island .peek .frow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--c-surface); }
+  #island .peek .frow .main { font-size: var(--fs-sm); }
+  #island .peek .frow .sub { font-size: var(--fs-xs); }
+  /* A switch (the edit lock): blue and to the right when on. */
+  #island .peek button.switch { position: relative; width: 36px; height: 20px; padding: 0; flex: none; background: rgba(255,255,255,.14); border-radius: 999px; }
+  #island .peek button.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .18s var(--ease-out); }
+  #island .peek button.switch.on { background: #2b8aff; }
+  #island .peek button.switch.on::after { left: 19px; }
+  #island .peek button.switch:hover { transform: none; filter: brightness(1.1); }
+  #island .peek .focuspage .fbtns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+  #island .peek .focuspage .fbtns button { height: 28px; padding: 0 12px; font-size: var(--fs-sm); background: rgba(255,255,255,.07); gap: 5px; }
+  #island .peek .focuspage .fbtns button:hover { background: rgba(255,255,255,.12); }
+  #island .peek .focuspage .fbtns button.primary { background: #2b8aff; color: #fff; }
+  #island .peek .fside { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  #island .peek .fside .cap { color: var(--c-sub); font-size: var(--fs-xs); }
+  #island .peek .fstat { display: flex; flex-direction: column; gap: 1px; padding: 8px 10px; border-radius: 10px; background: var(--c-surface); }
+  #island .peek .fstat b { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--c-text); }
+  #island .peek .fstat span { color: var(--c-sub); font-size: var(--fs-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .fstat.timer b { color: var(--c-timer); }
+  #island .peek .focuspage .phead .main { color: var(--c-text); max-width: 60%; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .focuspage .live { color: var(--k); font-variant-numeric: tabular-nums; font-weight: 600; }
+  #island .peek .focuspage .pctl { gap: var(--sp-1); margin-top: 2px; }
+  #island .peek .focuspage button.chip { padding: 4px 10px 4px 8px; gap: 5px; color: var(--c-text); }
+  #island .peek .focuspage button.primary { padding: 4px 12px 4px 9px; gap: 5px; }
+  #island .peek .focuspage.idle .lead { color: var(--c-sub); background: var(--c-surface-2); }
+  #island .peek .focuspage.idle .phead { flex-direction: column; align-items: flex-start; gap: 1px; }
+  /* Tasks page: each status has its color (--k) on the lead tile and the status word. Work in
+     progress spins (no made-up progress); a long run turns its time amber; a failure shows its error. */
+  #island .peek .thead { display: flex; align-items: center; gap: var(--sp-1); padding: 0 2px; }
+  #island .peek .thead .end { margin-left: auto; }
+  #island .peek .thead button.chip { --k: var(--c-accent); gap: 4px; }
+  #island .peek .thead button.chip.focus { --k: var(--c-ok); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* One card per Sprite: its status dot, name and state on the first line, what it is doing under it.
+     One that needs the person is warm, with a border. */
+  #island .peek .task { --k: var(--c-accent); flex: none !important; align-items: center; gap: 10px; padding: 8px 10px 8px 12px; border-radius: 12px; border: 1px solid transparent; }
+  #island .peek .task.s-needs { background: color-mix(in srgb, var(--c-warn) 8%, transparent); border-color: color-mix(in srgb, var(--c-warn) 25%, transparent); }
+  #island .peek .task .tline .tname { flex: none; font-weight: 700; color: var(--c-text); font-size: 12.5px; }
+  #island .peek .task .tline { align-items: center; }
+  #island .peek .task .tline .ttime { margin-left: auto; }
+  #island .peek .task .ttime::before { display: none; }
+  #island .peek .task .tline .tstat { font-weight: 500; font-size: var(--fs-xs); }
+  #island .peek .task .sdot { width: 8px; height: 8px; border-radius: 50%; background: var(--k); flex: none; }
+  #island .peek .task.s-running .sdot { background: #f5a524; animation: pulse 1.4s ease-in-out infinite; }
+  #island .peek .task.s-running { --k: #f5a524; }
+  #island .peek .task .tdesc { color: var(--c-sub); font: 11.5px Consolas, "Cascadia Mono", monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
+  #island .peek .task .tdesc.err { color: #ffb3b8; font-family: inherit; }
+  #island .peek .task .tdesc.plain { font-family: inherit; color: var(--c-text); font-size: var(--fs-sm); }
+  #island .peek .thead { flex: none; }
+  #island .peek .tstat.ask { color: var(--c-text); }
+  #island .peek .task.s-needs { --k: var(--c-warn); }
+  #island .peek .task.s-failed { --k: var(--c-danger); }
+  #island .peek .task.s-completed { --k: var(--c-ok); }
+  #island .peek .task.s-cancelled, #island .peek .task.s-queued { --k: var(--c-sub); }
+  #island .peek .task .main { font-size: var(--fs-md); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #island .peek .tline { display: flex; align-items: baseline; gap: 6px; }
+  #island .peek .tstat { flex: none; color: var(--k); font-weight: 600; }
+  #island .peek .ttime { flex: none; font-variant-numeric: tabular-nums; }
+  #island .peek .ttime.long { color: var(--c-warn); font-weight: 600; }
+  #island .peek .tfrom { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .tfrom::before, #island .peek .ttime::before { content: '·'; margin-right: 6px; color: var(--c-sub); font-weight: 400; }
+  #island .peek .tdetail { color: var(--c-sub); font-size: var(--fs-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  #island .peek .tdetail.err { color: #ffb3b8; }
+  #island .peek .tdetail.ask { color: var(--c-text); font-weight: 600; font-size: var(--fs-sm); }
+  #island .peek .tbar { height: 4px; border-radius: 2px; background: var(--c-track); overflow: hidden; margin-top: 4px; }
+  #island .peek .tbar i { display: block; height: 100%; background: var(--k); border-radius: 2px; transition: width .4s ease; }
+  #island .peek .tctl { display: flex; align-items: center; gap: 2px; flex: none; align-self: center; }
+  #island .peek .tctl button.icon, #island .peek .tctl button.icon.danger { width: 28px; height: 28px; }
+  #island .peek .tctl button.danger:not(.icon) { padding: 4px 10px; font-size: var(--fs-xs); font-weight: 600; }
+  #island .peek .tmore { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); color: var(--c-sub); font-size: var(--fs-xs); padding: 0 4px; }
+  #island .peek .tempty { color: var(--c-sub); font-size: var(--fs-sm); padding: 10px 6px; }
+  /* Reminder page: the accent is violet (--k); a Google event's own color marks its row (--ev). Rows
+     stay one line tall; their buttons appear on hover or keyboard focus. Comfortable spaces them out. */
+  #island .peek .rempage { --k: var(--c-accent); flex-direction: column; align-items: stretch; gap: 8px; padding: 0; }
+  #island .peek .rempage .chead2 { flex: none; }
+  /* Agenda / Timeline / Kalender as one segmented control. */
+  #island .peek .seg { display: flex; gap: 2px; padding: 2px; border-radius: 999px; background: var(--c-surface); flex: none; }
+  #island .peek .seg button.chip { padding: 3px 11px; font-size: 11.5px; background: transparent; color: var(--c-sub); }
+  #island .peek .seg button.chip:hover { color: var(--c-text); background: transparent; transform: none; }
+  #island .peek .seg button.chip.on { background: rgba(255,255,255,.14); color: var(--c-text); }
+  #island .peek .rempage .dot { animation: none; box-shadow: none; width: 4px; height: 4px; background: var(--k); margin: 1px auto 0; }
+  #island .peek .chead2 { display: flex; align-items: center; gap: 3px; }
+  #island .peek .chead2 > button.chip { padding: 3px 9px; }
+  #island .peek .ctools { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+  #island .peek .ctools button.icon { width: 26px; height: 26px; }
+  #island .peek .ctools button.primary-ic { width: 26px; height: 26px; border-radius: 9px; background: var(--k); color: #fff; }
+  #island .peek .ctools button.primary-ic:hover { background: var(--k); filter: brightness(1.12); }
+  #island .peek button.gsync, #island .peek button.gconnect { gap: 4px; }
+  #island .peek button.gsync::before, #island .peek button.gconnect::before { content: 'G'; font-weight: 800; background: conic-gradient(#ea4335 0 25%, #fbbc05 0 50%, #34a853 0 75%, #4285f4 0); -webkit-background-clip: text; color: transparent; }
+  #island .peek button.gsync.s-loading { color: var(--c-sub); }
+  #island .peek button.gsync.s-auth, #island .peek button.gsync.s-scope, #island .peek button.gsync.s-error, #island .peek button.gsync.s-offline, #island .peek button.gsync.s-rate { color: var(--c-warn); }
+  #island .peek .cwarn { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--c-warn); font-size: var(--fs-xs); background: color-mix(in srgb, var(--c-warn) 10%, transparent); border-radius: 9px; padding: 3px 4px 3px 9px; }
+  #island .peek .cstrip { display: flex; align-items: stretch; gap: 3px; }
+  #island .peek .cstrip button.cday { flex: 1; min-width: 0; flex-direction: column; gap: 0; padding: 2px 0 3px; border-radius: 10px; background: var(--c-surface); color: var(--c-sub); justify-content: center; line-height: 1.15; }
+  #island .peek .cstrip .wd { font-size: 10px; }
+  #island .peek .cstrip .dn { font-size: var(--fs-md); font-weight: 600; color: var(--c-text); }
+  #island .peek .cstrip button.cday.today .dn { color: var(--k); }
+  #island .peek .cstrip button.cday.on { background: var(--k); color: rgba(255,255,255,.85); }
+  #island .peek .cstrip button.cday.on .dn { color: #fff; }
+  #island .peek .cstrip button.cday.on .dot { background: #fff; }
+  #island .peek button.nav { width: 18px; padding: 0; justify-content: center; background: transparent; color: var(--c-sub); flex: none; }
+  #island .peek button.nav:hover { color: var(--c-text); background: transparent; }
+  #island .peek button.nav svg { width: 10px; height: 10px; }
+  #island .peek .clist, #island .peek .ctline { display: flex; flex-direction: column; }
+  #island .peek .rempage .ctline { flex: none; }
+  #island .peek .rempage .clist { flex: 1; min-height: 0; justify-content: flex-start; }
+  /* Rows on the reminder page are small cards: the time, the title over where it is from and when, its
+     buttons on the right. The next one is tinted. */
+  #island .peek .rempage .clist { gap: 4px; }
+  #island .peek .rempage .crow { min-height: 0; padding: 6px 8px 6px 10px; gap: 10px; border-radius: 10px; background: var(--c-surface); }
+  #island .peek .rempage .crow .grow { display: flex; flex-direction: column; gap: 0; }
+  #island .peek .rempage .crow .main { font-size: var(--fs-sm); }
+  #island .peek .rempage .crow .sub { font-size: var(--fs-xs); }
+  #island .peek .rempage .crow .ctime { width: 40px; font-size: var(--fs-sm); font-weight: 700; color: var(--c-text); }
+  #island .peek .rempage .crow.next .ctime { color: var(--k); }
+  #island .peek .rempage .crow .cmark { display: none; }
+  #island .peek .rempage .crow .csrc { width: 16px; height: 16px; font-size: 10px; }
+  #island .peek .rempage .ctline .crow { margin-bottom: 4px; }
+  #island .peek .rempage .cempty { padding: 4px 6px; }
+  #island .peek .cnav { display: flex; align-items: center; gap: 0; margin-left: 4px; }
+  #island .peek .cnav button.nav { width: 16px; font-size: 14px; }
+  #island .peek .cnav .navday, #island .peek .cnav button.navday { font-size: var(--fs-xs); font-weight: 600; color: var(--c-text); padding: 2px 4px; background: transparent; white-space: nowrap; }
+  #island .peek .cnav div.navday { text-transform: capitalize; }
+  #island .peek .cnav button.navday:hover { background: var(--c-surface-2); }
+  #island .peek button.gsync { width: 22px; height: 22px; padding: 0; justify-content: center; }
+  #island .peek button.gsync.s-loading::before { animation: pulse 1.2s ease-in-out infinite; }
+  #island .peek .cpline { display: flex; align-items: center; gap: 6px; width: 100%; height: 20px; flex: none; padding: 0 6px; border-radius: 7px; background: color-mix(in srgb, var(--k) 12%, transparent); color: var(--c-text); font-size: var(--fs-xs); text-align: left; }
+  #island .peek button.cpline:hover { background: color-mix(in srgb, var(--k) 20%, transparent); }
+  #island .peek .cpline .ico { color: var(--k); display: grid; }
+  #island .peek .cpline .pn { font-weight: 700; }
+  #island .peek .cpline .pa { color: var(--c-sub); font-variant-numeric: tabular-nums; }
+  #island .peek .cpline .pr { color: var(--c-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .cpline .pbar2 { flex: 1; min-width: 40px; margin: 0 0 0 4px; }
+  #island .peek .cpline.wait { background: var(--c-surface); color: var(--c-sub); }
+  #island .peek .cpline.wait button.chip { margin-left: auto; padding: 1px 8px; }
+  #island .peek .cpline.guide { padding: 0 2px 0 0; }
+  #island .peek .cpline.guide button.cpgo { flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; gap: 6px; padding: 0 6px; background: transparent; color: var(--c-text); font-size: var(--fs-xs); border-radius: 7px; text-align: left; }
+  #island .peek .cpline.guide button.cpgo:hover { background: color-mix(in srgb, var(--k) 12%, transparent); }
+  #island .peek .cpline.guide .ico { color: var(--k); display: grid; }
+  #island .peek .cpline.guide .pr { flex: 1; color: var(--c-text); }
+  #island .peek .cpline.guide .cta { flex: none; color: var(--k); font-weight: 700; }
+  #island .peek .cpline.guide button.icon { width: 18px; height: 18px; }
+  #island .peek .cpline.guide button.icon svg { width: 11px; height: 11px; }
+  #island .peek .cgroup { color: var(--c-sub); font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 3px 4px 0; line-height: 12px; }
+  #island .peek .crow { --ev: var(--k); position: relative; display: flex; align-items: center; gap: 8px; padding: 1px 4px; border-radius: 8px; min-height: 28px; flex: none; }
+  #island .peek .dens-comfortable .ctline .crow { padding: 4px 4px; min-height: 34px; }
+  #island .peek .crow:hover, #island .peek .crow:focus-within, #island .peek .crow.asking { background: var(--c-surface-2); }
+  #island .peek .crow .ctime { width: 44px; flex: none; color: var(--c-sub); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
+  #island .peek .crow .cmark { width: 7px; height: 7px; border-radius: 50%; background: var(--ev); flex: none; }
+  #island .peek .crow .grow { flex: 1; min-width: 0; }
+  #island .peek .crow .main { font-size: var(--fs-md); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .crow .sub { color: var(--c-sub); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .crow.next { background: color-mix(in srgb, var(--k) 14%, transparent); }
+  #island .peek .crow.next .ctime { color: var(--k); font-weight: 600; }
+  #island .peek .crow.st-overdue .sub { color: var(--c-warn); }
+  #island .peek .crow.st-overdue .cmark { background: var(--c-warn); }
+  #island .peek .crow.st-ongoing .cmark { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ev) 30%, transparent); }
+  #island .peek .crow.st-done .main { text-decoration: line-through; color: var(--c-sub); font-weight: 500; }
+  #island .peek .crow.st-done, #island .peek .crow.st-past { opacity: .6; }
+  #island .peek .csrc { flex: none; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 6px; font-size: 11px; font-weight: 800; color: var(--c-sub); }
+  #island .peek .csrc.g { background: conic-gradient(#ea4335 0 25%, #fbbc05 0 50%, #34a853 0 75%, #4285f4 0); -webkit-background-clip: text; color: transparent; }
+  #island .peek .cact { display: none; align-items: center; gap: 1px; flex: none; }
+  #island .peek .crow:hover .cact, #island .peek .crow:focus-within .cact, #island .peek .crow.asking .cact { display: flex; }
+  #island .peek .crow:hover .csrc, #island .peek .crow:focus-within .csrc, #island .peek .crow.asking .csrc { display: none; }
+  #island .peek .cact button.icon { width: 24px; height: 24px; }
+  #island .peek .cact button.icon svg { width: 13px; height: 13px; }
+  #island .peek .cact button.icon.danger { width: 24px; height: 24px; background: transparent; }
+  #island .peek .cact button.off { opacity: .45; cursor: help; }
+  #island .peek .cact button.chip { padding: 2px 8px; }
+  #island .peek .cact button.danger:not(.icon) { padding: 3px 10px; font-size: var(--fs-xs); font-weight: 600; }
+  #island .peek .cempty { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--c-sub); font-size: var(--fs-sm); padding: 8px 6px; }
+  #island .peek .ccal { display: flex; gap: 10px; align-items: stretch; flex: 1; min-height: 0; }
+  /* A whole month: 5 or 6 rows of 18 px under the weekday names, so it fits the page without scrolling. */
+  #island .peek .ccal .cgrid { flex: none; width: 210px; grid-template-rows: auto; grid-auto-rows: 18px; gap: 1px 2px; align-self: start; }
+  #island .peek .rempage:has(.ccal) { gap: 6px; }
+  #island .peek .ccal .cgrid .wh { font-size: 9.5px; padding: 0; line-height: 12px; }
+  #island .peek .ccal .cgrid button.cell { position: relative; height: 18px; min-height: 0; padding: 0; gap: 0; font-size: 11px; font-weight: 600; line-height: 1; border-radius: 6px; background: transparent; }
+  #island .peek .ccal .cgrid button.cell:hover { background: var(--c-surface-2); transform: none; }
+  #island .peek .ccal .cgrid button.cell .dot { position: absolute; left: 50%; bottom: 1px; width: 3px; height: 3px; margin-left: -1.5px; }
+  #island .peek .ccal .cgrid button.cell.on { background: var(--k); }
+  #island .peek .ccal .cgrid .dot { width: 4px; height: 4px; margin: 0; }
+  #island .peek .ccal .cleft { flex: none; width: 196px; display: flex; flex-direction: column; gap: 3px; }
+  #island .peek .ccal .clist { flex: 1; min-width: 0; }
+  #island .peek .ccal .crow .ctime { width: 38px; }
+  #island .peek .cmonth { display: flex; align-items: center; justify-content: space-between; font-size: var(--fs-sm); font-weight: 600; text-transform: capitalize; }
+  #island .peek .cgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+  #island .peek .cgrid .wh { text-align: center; color: var(--c-sub); font-size: 10px; padding: 1px 0; }
+  #island .peek .cgrid button.cell { flex-direction: column; gap: 0; padding: 1px 0; height: 20px; justify-content: center; border-radius: 8px; background: transparent; color: var(--c-text); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  #island .peek .cgrid button.cell.out { color: color-mix(in srgb, var(--c-sub) 60%, transparent); }
+  #island .peek .cgrid button.cell.today { color: var(--k); font-weight: 700; }
+  #island .peek .cgrid button.cell.on { background: var(--k); color: #fff; }
+  #island .peek .cgrid button.cell.on .dot { background: #fff; }
+  #island .peek .ccal .cstrip button.cday .wd { font-size: 9px; }
+  /* Prayer times: the next one with a bar filling toward it; opened, the whole day. */
+  #island .peek .cprayer { display: flex; flex-direction: column; gap: 3px; background: var(--c-surface); border-radius: 11px; padding: 3px; }
+  #island .peek .cprayer > button.chip, #island .peek .cprayer > .sub { margin: 2px 4px; }
+  #island .peek .cprayer button.phead2 { display: flex; align-items: center; gap: 9px; width: 100%; padding: 2px 6px 2px 2px; background: transparent; text-align: left; color: var(--c-text); }
+  #island .peek .cprayer button.phead2:hover { background: var(--c-surface-2); }
+  #island .peek .cprayer .lead.pray { width: 24px; height: 24px; border-radius: 8px; --k: #8b7cff; }
+  #island .peek .cprayer .lead.pray svg { width: 14px; height: 14px; }
+  #island .peek .cprayer .phead2 .grow { flex: 1; min-width: 0; display: grid; grid-template-columns: auto 1fr; align-items: baseline; column-gap: 8px; }
+  #island .peek .cprayer .phead2 .main { font-size: var(--fs-md); font-weight: 700; }
+  #island .peek .cprayer .phead2 .sub { color: var(--c-sub); font-size: var(--fs-xs); }
+  #island .peek .pbar2 { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: var(--c-track); overflow: hidden; margin-top: 3px; }
+  #island .peek .pbar2 i { display: block; height: 100%; background: var(--k); border-radius: 2px; }
+  #island .peek .cprayer .chev { color: var(--c-sub); font-size: 12px; }
+  /* The prayer page: the next prayer and the settings in one line, then the day's eight times as a
+     four-by-two grid (past ones dimmed, the next one outlined in blue). */
+  #island .peek .praypage { flex-direction: column; align-items: stretch; gap: 10px; }
+  #island .peek .prhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; min-width: 0; }
+  #island .peek .prhead .pnext { font-size: var(--fs-sm); color: var(--c-text); white-space: nowrap; }
+  #island .peek .prhead .pmeta { font-size: var(--fs-xs); color: var(--c-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  #island .peek .pgrid { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(48px, 1fr); gap: 6px; }
+  #island .peek .pcell { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 7px 10px; border-radius: 12px; background: var(--c-surface); border: 1px solid transparent; min-width: 0; }
+  #island .peek .pcell .pn { font-size: var(--fs-xs); color: var(--c-sub); }
+  #island .peek .pcell .pa { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--c-text); }
+  #island .peek .pcell.past .pa { color: #5f6b7a; }
+  #island .peek .pcell.next { background: rgba(43,138,255,.16); border-color: rgba(90,169,255,.5); }
+  #island .peek .pcell.next .pn { color: var(--c-accent); }
+  #island .peek .pcell button.tick { position: absolute; top: 5px; right: 5px; width: 20px; height: 20px; padding: 0; justify-content: center; background: transparent; color: var(--c-sub); opacity: 0; }
+  #island .peek .pcell:hover button.tick, #island .peek .pcell button.tick.on { opacity: 1; }
+  #island .peek .pcell button.tick.on { color: var(--c-ok); }
+  #island .peek .pcell button.tick svg { width: 12px; height: 12px; }
+  #island .peek .pfoot { padding: 0 8px 2px; color: var(--c-sub); font-size: var(--fs-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Home's quick box: a field to type a sum or a number in, with what it understood on the right. The
+     answer takes the tiles' place while there is something in it. */
+  #island .peek .homepage { flex-direction: column; align-items: stretch; gap: 8px; }
+  #island .peek .hbody { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  #island .peek .hbody > .hgrid { flex: 1; }
+  #island .peek .sbox { flex: none; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 6px 0 12px; box-sizing: border-box; border-radius: 12px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08); transition: border-color .2s ease, box-shadow .2s ease; cursor: text; }
+  #island .peek .sbox.on, #island .peek .sbox.has { border-color: color-mix(in srgb, var(--glow) 55%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--glow) 14%, transparent); }
+  #island .peek .sbox .sico { flex: none; display: grid; color: var(--c-accent); }
+  #island .peek .sbox input { flex: 1; min-width: 0; height: 100%; padding: 0; background: transparent; border: 0; outline: none; color: var(--c-text); font: 13px Urbanist, "Segoe UI Variable Text", "Segoe UI", sans-serif; user-select: text; }
+  #island .peek .sbox input::placeholder { color: #5f6b7a; }
+  #island .peek .skind { flex: none; height: 24px; padding: 0 9px; border-radius: 8px; display: flex; align-items: center; font-size: 11px; font-weight: 700; white-space: nowrap; color: var(--c-sub); background: rgba(255,255,255,.06); }
+  #island .peek .skind:empty { display: none; }
+  #island .peek .skind.k-sum { color: var(--c-accent); background: rgba(43,138,255,.16); }
+  #island .peek .skind.k-words { color: var(--c-ok); background: rgba(61,220,151,.14); }
+  #island .peek .sans { flex: 1; min-height: 0; display: flex; align-items: center; gap: 14px; padding: 4px 14px; border-radius: 14px; background: rgba(255,255,255,.04); animation: rise .2s var(--ease-out) both; }
+  #island .peek .sans .scol { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  #island .peek .sans .ssub { font-size: var(--fs-xs); color: var(--c-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .sans .smain { font-size: 28px; font-weight: 700; letter-spacing: -.01em; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--c-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .sans .swords { font-size: 11.5px; color: var(--c-sub); line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; user-select: text; }
+  #island .peek .sans .sact { flex: none; display: flex; flex-direction: column; gap: 6px; }
+  #island .peek .sans .sact button { height: 30px; padding: 0 14px; font-size: var(--fs-sm); justify-content: center; }
+  #island .peek .sans .sact button.chip { background: rgba(255,255,255,.07); color: var(--c-text); font-weight: 600; }
+  #island .peek .sans .sact button.done { background: rgba(61,220,151,.16); color: var(--c-ok); }
+  #island .peek .sans.none { flex-direction: column; align-items: flex-start; justify-content: center; gap: 8px; }
+  #island .peek .sans .shint { font-size: 12.5px; color: var(--c-sub); }
+  #island .peek .sans .sex { display: flex; flex-wrap: wrap; gap: 6px; }
+  #island .peek .sans .sex button.chip { padding: 4px 10px; font-size: 11.5px; font-weight: 500; background: rgba(255,255,255,.07); color: var(--c-text); }
+
+  /* Home: four tall tiles side by side, each leading to its page: an icon on its tint at the top, a big
+     figure (a time, a count), then what it is. */
+  #island .peek .homepage { padding: 0; }
+  #island .peek .hgrid { flex: 1; align-self: stretch; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; min-width: 0; }
+  /* A tile is tinted in its page's color (--k, the same color as that page's glow), with the page's
+     icon large and faint in its top right; the figure and text sit at the bottom. */
+  #island .peek .htile { --k: var(--c-accent); position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; min-width: 0; padding: 10px; border-radius: 14px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--k) 30%, #0b0d12), color-mix(in srgb, var(--k) 9%, #0b0d12) 70%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 22%, transparent); transition: filter .18s ease; }
+  #island .peek .htile.none { background: linear-gradient(160deg, color-mix(in srgb, var(--k) 13%, #0b0d12), color-mix(in srgb, var(--k) 4%, #0b0d12) 70%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+  #island .peek .htile .big { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--c-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+  #island .peek .htile.none .big { color: var(--c-sub); }
+  #island .peek .htile .grow { flex: none; display: flex; flex-direction: column; gap: 1px; }
+  #island .peek .htile[data-page], #island .peek .htile[data-act] { cursor: pointer; }
+  #island .peek .htile[data-page]:hover, #island .peek .htile[data-act]:hover { filter: brightness(1.18); }
+  #island .peek .htile .hico { position: absolute; z-index: -1; top: -8px; right: -10px; display: grid; place-items: center; color: var(--k); opacity: .3; pointer-events: none; }
+  #island .peek .htile .hico svg { width: 66px; height: 66px; }
+  #island .peek .htile.none .hico { opacity: .14; }
+  #island .peek .htile .grow { min-width: 0; }
+  #island .peek .htile .main { font-size: 11.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .htile.none .main { color: var(--c-sub); font-weight: 500; }
+  /* Notes & knowledge: two tiles leading to their lists. */
+  #island .peek .libpage { padding: 0; flex-direction: column; align-items: stretch; gap: 8px; }
+  #island .peek .libpage .hgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); flex: 1; }
+  #island .peek .libpage .htile.k-notes { --k: var(--c-warn); }
+  #island .peek .libpage .htile.k-know { --k: var(--c-music); }
+  #island .peek .htile .sub { color: var(--c-sub); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .peek .htile.k-tasks.urgent { --k: var(--c-warn); }
+  #island .peek .htile.k-media.playing .hico { animation: pulse 2.4s ease-in-out infinite; }
+  /* Weather on the left side, under the date: a motion icon, the temperature, the place. */
+  /* The weather block (a click refreshes it): the icon and the temperature large, then the sky, then
+     the place with today's high and low. */
+  #island .peek button.wx { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 4px 6px; margin: 0 0 0 -6px; background: transparent; color: var(--c-text); border-radius: 10px; width: calc(100% + 6px); text-align: left; font-weight: 400; }
+  #island .peek button.wx:hover { background: var(--c-surface); transform: none; }
+  #island .peek .wx .wtop { display: flex; align-items: center; gap: 10px; }
+  #island .peek .wx .wt { font-size: 22px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+  #island .peek .wx .wc { font-size: var(--fs-sm); color: var(--c-text); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  #island .peek .wx .wp { color: var(--c-sub); font-size: var(--fs-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  #island .peek button.wxset { margin-top: 10px; padding: 3px 10px; font-size: var(--fs-xs); }
+  #island .wxi { display: grid; flex: none; }
+  #island .wxi svg { overflow: visible; }
+  #island .wxi .sun circle { fill: #ffc94d; }
+  #island .wxi .sun line { stroke: #ffc94d; stroke-width: 1.6; stroke-linecap: round; }
+  #island .wxi .rays { transform-origin: inherit; transform-box: view-box; }
+  #island .wxi .sun { transform-box: view-box; animation: wx-spin 12s linear infinite; }
+  #island .wxi .moon { fill: #e6e9ff; transform-box: view-box; transform-origin: 12px 12px; animation: wx-sway 5s ease-in-out infinite; }
+  #island .wxi .cl { fill: #d6deea; }
+  #island .wxi.k-storm .cl, #island .wxi.k-rain .cl { fill: #aeb9c9; }
+  #island .wxi .drift { animation: wx-drift 4s ease-in-out infinite; }
+  #island .wxi .drift.slow { animation-duration: 6s; animation-direction: reverse; opacity: .75; }
+  #island .wxi .drop { stroke: #5aa9ff; stroke-width: 1.4; stroke-linecap: round; animation: wx-fall 1.1s linear infinite; }
+  #island .wxi .drop.fast { animation-duration: .75s; }
+  #island .wxi .flake { fill: #fff; animation: wx-snow 2s linear infinite; }
+  #island .wxi .bolt { fill: #ffd84d; animation: wx-flash 2.4s steps(1) infinite; }
+  #island .wxi .fogl line { stroke: #c4ccd8; stroke-width: 1.6; stroke-linecap: round; animation: wx-fog 3s ease-in-out infinite; }
+  @keyframes wx-spin { to { transform: rotate(360deg); } }
+  @keyframes wx-sway { 50% { transform: rotate(-10deg); } }
+  @keyframes wx-drift { 50% { transform: translateX(1.4px); } }
+  @keyframes wx-fall { from { transform: translateY(-3px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(3px); opacity: 0; } }
+  @keyframes wx-snow { from { transform: translateY(-3px); opacity: 0; } 30% { opacity: 1; } to { transform: translate(1px, 3px); opacity: 0; } }
+  @keyframes wx-flash { 0%, 60%, 100% { opacity: 1; } 70%, 90% { opacity: .15; } }
+  @keyframes wx-fog { 50% { transform: translateX(2px); opacity: .6; } }
+  #island:not(.mode-peek) .wxi *, #island .homepage .playing .hico { animation-play-state: paused; }
+  #island.mode-peek .homepage .playing .hico { animation-play-state: running; }
+  @media (prefers-reduced-motion: reduce) { #island .wxi * { animation: none !important; } }
+  /* aina on the left of the pill, always (a song's cover takes his place while it plays). */
+  #island .mini-art { display: block; flex: none; width: 24px; height: 24px; border-radius: 50%; overflow: hidden; position: relative; }
+  #island .mini-art img { display: none; width: 100%; height: 100%; object-fit: cover; }
+  #island .mini-art.cover { border-radius: 7px; }
+  #island .mini-art.cover img { display: block; }
+  #island .mini-art canvas { position: absolute; left: -2px; top: -2px; width: 28px; height: 28px; margin: 0; }
+  #island .mini-art.cover canvas { display: none; }
+  /* Before aina loads (or if he can't): a small orb in his place. */
+  #island:not(.has-face) .mini-art:not(.cover) { background: radial-gradient(circle at 35% 30%, #9cd0ff, #2b8aff 55%, #0b4fb3); }
+  #island .mini.kind-music .dot { display: none; }
+  #island .mini.kind-music .mini-text { max-width: 280px; }
+  /* The line being sung is shown whole: the pill grows with it (island.js), up to the screen's width. */
+  #island .mini.kind-music.lyric .mini-text { max-width: calc(90vw - 90px); }
+  #island .mini.kind-music.lyric .mini-text { color: color-mix(in srgb, var(--c-music) 55%, #fff); font-style: italic; }
+  #island .mini.kind-remind .dot { background: #8b7cff; animation: none; }
+  #island .mini.kind-remind.soon .dot { background: var(--c-warn); box-shadow: 0 0 8px var(--c-warn); animation: pulse 1.6s ease-in-out infinite; }
+  #island .mini.kind-remind .mini-text { max-width: 260px; }
+  #island .mini.kind-agents .mini-text { max-width: 220px; }
+  #island .mini.kind-focus .mini-text { max-width: 220px; }
+  #island .mini.paused .mini-text { opacity: .6; }
+
+  /* Music: the cover is the album art, or a tile with a note; without a cover, a little equalizer
+     dances on it while the song plays (with one, a smaller equalizer sits in its corner). */
+  #island .art { flex: none; position: relative; display: grid; place-items: center; overflow: hidden; color: #fff; border-radius: var(--r-tile); background: linear-gradient(135deg, #ff6b9a, var(--c-music) 55%, #2b8aff); box-shadow: 0 4px 14px rgba(124,92,255,.3); }
+  #island .art.md { width: 56px; height: 56px; }
+  #island .art.lg { width: 52px; height: 52px; }
+  #island .art[data-local] { cursor: pointer; transition: transform .3s var(--ease-pop); }
+  #island .art[data-local]:hover { transform: scale(1.05); }
+  #island .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #island .art.playing:not(:has(img)) > .ico { opacity: 0; }
+  #island .art .eq { position: absolute; inset: 0; display: none; align-items: flex-end; justify-content: center; gap: 3px; padding-bottom: var(--sp-3); }
+  #island .art.playing .eq { display: flex; }
+  #island .art:has(img) .eq { inset: auto var(--sp-1) var(--sp-1) auto; padding: 3px var(--sp-1); border-radius: 6px; background: rgba(0,0,0,.55); gap: 2px; }
+  #island .art .eq i { width: 3.5px; height: 16px; border-radius: 2px; background: #fff; transform-origin: bottom; animation: eq 1s ease-in-out infinite; }
+  #island .art:has(img) .eq i { width: 2px; height: 9px; }
+  #island .art .eq i:nth-child(2) { animation-duration: .8s; animation-delay: -.3s; }
+  #island .art .eq i:nth-child(3) { animation-duration: 1.15s; animation-delay: -.6s; }
+  #island .ctl { display: flex; align-items: center; gap: 2px; flex: none; }
+  /* The music page: cover, title and controls, then the progress (click to seek), the volume (drag or
+     scroll), lyrics and the sound output; the lyrics panel opens below. */
+  /* The cover (96 px), then the song, its progress and controls; the lyrics in a column on the right. */
+  #island .peek .media { display: flex; flex-direction: row; align-items: stretch; gap: 14px; padding: 0; }
+  #island .peek .media .art.xl { width: 88px; height: 88px; border-radius: 12px; align-self: flex-start; }
+  #island .peek .media .mcol { flex: 0 1 250px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  #island .peek .media:not(:has(.lcol)) .mcol { flex: 1; }
+  #island .peek .media .mcol .main { font-size: var(--fs-lg); font-weight: 700; }
+  #island .peek .media .mcol .sub { font-size: var(--fs-sm); }
+  #island .peek .media .pbar i { background: var(--c-music); }
+  #island .peek .media .pbar i::after { content: ''; position: absolute; right: -5px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: #fff; }
+  #island .peek .media .mctl { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  #island .peek .media .mctl .ctl { gap: 2px; }
+  #island .peek .media .mctl .ctl button.icon { width: 26px; height: 28px; color: var(--c-text); }
+  #island .peek .media .mctl .vol { gap: 4px; }
+  #island .peek .media .mctl .ctl button.icon.play { width: 32px; height: 32px; color: #000; }
+  #island .peek .media .mctl .ctl button.on { color: var(--c-music); background: transparent; }
+  #island .peek .media .mtools { margin-top: auto; }
+  #island .peek .media .mtools button.icon { width: 24px; height: 24px; }
+  #island .peek .media .vbar { width: 46px; }
+  #island .peek .media .vol button.icon { width: 24px; height: 24px; }
+  #island .peek .media .vbar i { background: var(--c-text); }
+  /* Lyrics: the line being sung bright, the ones around it dim; the source under them. */
+  #island .peek .media .lcol { flex: 1; min-width: 140px; border-left: 1px solid rgba(255,255,255,.08); padding-left: 14px; display: flex; flex-direction: column; justify-content: center; gap: 5px; min-width: 0; }
+  #island .peek .media .lcol .l { font-size: 12.5px; line-height: 1.3; color: #5f6b7a; white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: 0; transition: color .3s ease; }
+  #island .peek .media .lcol .l.now { color: var(--c-text); font-weight: 600; font-size: 12.5px; margin: 0; }
+  #island .peek .media .lcol .l.next { color: var(--c-sub); }
+  #island .peek .media .lcol .lsrc { font-size: 10px; color: #5f6b7a; margin-top: 2px; }
+  #island .peek .media.idle { align-items: center; }
+  /* Timer and focus: their column spreads over the card's height. */
+  #island .peek .focuspage .grow { justify-content: flex-start; align-self: stretch; }
+  #island .peek .focuspage { align-items: stretch; }
+  #island .peek .media .mtop { display: flex; align-items: center; gap: var(--sp-3); }
+  #island .peek .media.idle .art.xl { width: 72px; height: 72px; align-self: center; }
+  #island .media .lyric { color: var(--c-music); font-size: var(--fs-sm); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; min-height: 1.3em; }
+  #island .mtools { display: flex; align-items: center; gap: 10px; margin-top: 6px; padding-left: 2px; min-width: 0; }
+  /* The player's name, opening it; cut short so it never pushes the controls out. */
+  #island .mtools button.src { flex: 0 1 auto; min-width: 0; max-width: 130px; padding: 3px 9px 3px 7px; gap: 5px; font-size: var(--fs-xs); font-weight: 600; background: var(--c-surface-2); color: var(--c-sub); }
+  #island .mtools button.src:hover { color: var(--c-text); }
+  #island .mtools button.src .ico { color: var(--c-music); }
+  #island .mtools .mright { display: flex; align-items: center; gap: 2px; margin-left: auto; flex: none; }
+  #island .mtools button.icon { position: relative; }
+  #island .mtools button.on-mute { color: var(--c-danger); }
+  #island .vbar.muted i { background: var(--c-sub); }
+  #island .mtools button .one { position: absolute; right: 3px; bottom: 2px; font-size: 8.5px; font-weight: 700; line-height: 1; color: var(--c-music); }
+  /* A control the player doesn't allow. */
+  #island button.off, #island button:disabled { opacity: .3; cursor: default; }
+  #island button.off:hover, #island button:disabled:hover { background: transparent; transform: none; }
+  #island .ctl button.play.off { background: rgba(255,255,255,.5); }
+  /* Nothing playing: a quiet stand-in. */
+  #island .peek .media.idle .art { background: var(--c-surface-2); box-shadow: none; color: var(--c-sub); }
+  #island .peek .media.idle .main { color: var(--c-sub); }
+  #island .mbar { display: flex; align-items: center; gap: var(--sp-2); flex: 1; min-width: 0; }
+  #island .mbar .t { color: var(--c-sub); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; flex: none; min-width: 30px; }
+  #island .mbar .t:last-child { text-align: right; }
+  #island .pbar, #island .vbar { position: relative; height: 4px; border-radius: 2px; background: var(--c-track); transition: height .15s ease; }
+  #island .pbar { flex: 1; }
+  #island .pbar i, #island .vbar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 2px; background: var(--c-text); }
+  #island .pbar.seek, #island .vbar { cursor: pointer; }
+  #island .pbar.seek::before, #island .vbar::before { content: ''; position: absolute; inset: -8px 0; } /* a taller hit area */
+  #island .pbar.seek:hover, #island .vbar:hover { height: 6px; }
+  #island .pbar.seek:hover i { background: #fff; box-shadow: 0 0 8px rgba(255,255,255,.4); }
+  #island .vol { display: flex; align-items: center; gap: 6px; flex: none; color: var(--c-sub); }
+  #island .vbar { width: 70px; touch-action: none; }
+  #island .vbar i { background: var(--c-accent); }
+  #island .mtools button.icon { width: 26px; height: 26px; }
+  #island .mtools button.on { color: var(--c-music); background: color-mix(in srgb, var(--c-music) 18%, transparent); }
+
+  /* ---- expanded (the track card): opens by itself for a moment when a new song starts ---- */
+  #island .track { display: none; }
+  #island.mode-track .row, #island.mode-track .body, #island.mode-track .panel { display: none; }
+  #island.mode-track .track { display: flex; align-items: center; gap: var(--sp-3); padding: 2px 0 var(--sp-1); }
+  #island .track .grow { flex: 1; min-width: 0; }
+  #island .track .mbar { margin-top: 6px; }
+  #island .track .ctl { gap: var(--sp-3); color: var(--c-text); padding-right: var(--sp-1); }
+
+  /* Page tabs: a small icon per page; the open one filled. A page whose thing is still running (the
+     timer, music playing, background tasks) keeps a badge in its status color on its icon, whichever
+     page is open. */
+  /* Page indicator: small dots, and a pill that slides (with a little spring) to the open page. Hovered,
+     the row widens into the pages' icons and the pill grows behind the open one. */
+  #island .peek .dots { flex: none; display: flex; justify-content: center; align-items: center; height: 24px; margin-top: 3px; --slot: 14px; }
+  #island .peek .dots:hover { --slot: 30px; }
+  #island .peek .dtrack { position: relative; display: flex; }
+  #island .peek .pind { position: absolute; left: 1px; top: 50%; width: calc(var(--slot) - 2px); height: 5px; border-radius: var(--r-pill); background: var(--c-text); transform: translate(calc(var(--i, 0) * var(--slot)), -50%); transition: transform .44s cubic-bezier(.34, 1.4, .5, 1), width .3s var(--ease-pop), height .3s var(--ease-pop); }
+  #island .peek .dots:hover .pind { height: 20px; }
+  #island .peek .pdot { position: relative; z-index: 1; width: var(--slot); height: 20px; display: grid; place-items: center; cursor: pointer; color: var(--c-sub); transition: width .3s var(--ease-pop), color .18s ease; }
+  #island .peek .pdot::before { content: ''; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: color-mix(in srgb, var(--c-sub) 75%, transparent); transition: opacity .18s ease, transform .3s var(--ease-pop); }
+  #island .peek .pdot > * { opacity: 0; transform: scale(.5); transition: opacity .18s ease, transform .3s var(--ease-pop); }
+  #island .peek .dots:hover .pdot::before, #island .peek .pdot.on::before { opacity: 0; transform: scale(.4); }
+  #island .peek .dots:hover .pdot > * { opacity: 1; transform: none; }
+  #island .peek .dots:hover .pdot:hover { color: var(--c-text); }
+  #island .peek .pdot.on { color: #000 !important; }
+  #island .peek .pdot.live::before { background: var(--k, var(--c-ok)); }
+  #island .peek .dots:not(:hover) .pdot.live::after { display: none; }
+  #island .peek .pdot.k-timer { --k: var(--c-timer); }
+  #island .peek .pdot.k-media { --k: var(--c-music); }
+  #island .peek .pdot.k-tasks { --k: var(--c-ok); }
+  #island .peek .pdot.live::after { content: ''; position: absolute; top: -1px; right: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--k); box-shadow: 0 0 0 2px #000, 0 0 6px var(--k); animation: pulse 1.6s ease-in-out infinite; }
+  #island .peek .pdot.live.on::after { animation: none; }
+  #island .peek .shortcuts { display: flex; flex-wrap: wrap; gap: 6px; }
+  /* Freshly opened: the clock, then the page, then its tabs come in one after another. */
+  #island .peek-body.enter .top, #island .peek-body.enter .phd, #island .peek-body.enter .page > *, #island .peek-body.enter .dots { animation: rise .26s var(--ease-out) both; }
+  #island .peek-body.enter .phd { animation-delay: .03s; }
+  #island .peek-body.enter .page > * { animation-delay: .05s; }
+  #island .peek-body.enter .page > :nth-child(2) { animation-delay: .08s; }
+  #island .peek-body.enter .dots { animation-delay: .1s; }
+
+  /* Drop zone inside the notch. Its height matches DROP_ZONE in main.js (with the content's 7px top
+     padding), where an invisible window takes the OS drop. */
+  #island .dropzone, #island .uploadbox { display: none; }
+  /* The drop zone keeps its old padding: main lines its invisible drop window up with it. */
+  #island.mode-drop .content { padding: 7px 18px 9px 14px; }
+  #island.mode-drop .panel { padding-left: 0; }
+  #island.mode-drop .row, #island.mode-drop .body, #island.mode-drop .panel .lines { display: none; }
+  #island.mode-drop .dropzone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    height: 114px; box-sizing: border-box; margin: 0 0 2px; border-radius: 16px;
+    border: 1.5px dashed rgba(90,169,255,.4); transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    animation: rise .3s ease both;
+  }
+  #island.mode-drop.drop-over .dropzone { border-style: solid; border-color: #5aa9ff; background: rgba(43,138,255,.12); transform: scale(1.015); }
+  #island .lot-upload { width: 64px; height: 64px; }
+  #island .dz-title { font-size: 13.5px; font-weight: 600; color: #e9eef6; }
+  #island .dz-hint { font-size: 12px; color: #8e9bb0; }
+  #island.mode-drop .actions { justify-content: center; margin-top: 6px; }
+
+  /* Uploading: the notch shrinks to two rows, the cloud and the progress bar. */
+  #island.mode-upload .row, #island.mode-upload .body, #island.mode-upload .panel { display: none; }
+  /* Uploading: one row, 48 px tall: the cloud, the file and its percentage over a thin bar. */
+  #island.mode-upload .content { padding: 0 16px 0 12px; }
+  #island.mode-upload .uploadbox { display: flex; align-items: center; gap: 10px; height: 48px; animation: rise .25s ease both; }
+  #island .lot-cloud { width: 36px; height: 26px; flex: none; }
+  #island .ucol { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  #island .uhead { display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; }
+  #island .uhead .utitle { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #island .uhead .upct { color: var(--c-sub); font-variant-numeric: tabular-nums; flex: none; }
+  #island .bar { width: 100%; height: 4px; border-radius: 2px; background: rgba(255,255,255,.14); overflow: hidden; }
+  #island .bar i { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--c-accent); }
+  #island .lottie svg { display: block; }
+  @media (prefers-reduced-motion: reduce) {
+    #island *, #island *::before, #island *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
+
+
+/* The notch as aina-notch draws it (its styles above, from ui/src/ui/overlay.html), on the playground's
+   desktop instead of fixed at the top of a screen, scaled to fit, its size eased by CSS (the app springs it). */
+#island.pg-notch.here { position: absolute; z-index: 5; pointer-events: auto; transform: translateX(-50%) scale(var(--s, 1)); transform-origin: top center;
+  transition: width .46s cubic-bezier(.34, 1.22, .6, 1), height .46s cubic-bezier(.34, 1.22, .6, 1), opacity .25s ease; }
+#island.pg-notch .shape { transition: border-radius .46s cubic-bezier(.34, 1.22, .6, 1), box-shadow .3s ease; }
+/* aina (a Rive animation in the app) as a still. */
+#island img.pg-face { display: block; flex: none; width: 42px; height: 42px; object-fit: contain; }
+#island .peek-mascot img.pg-face { width: 60px; height: 60px; }
+#island .mini-art img.pg-face { position: absolute; left: -2px; top: -2px; width: 28px; height: 28px; }
+/* The voice wave (a canvas in the app). */
+#island .pg-wave { display: flex; align-items: center; gap: 2px; height: 18px; flex: none; }
+#island .pg-wave i { width: 2.5px; height: 18px; border-radius: 2px; background: var(--glow-text, #5aa9ff); transform: scaleY(.18); }
+#island .pg-wave.mic i, #island .pg-wave.voice i { animation: pg-wave .9s ease-in-out infinite; }
+#island .pg-wave.think i { opacity: .6; animation: pg-wave 1.8s ease-in-out infinite; }
+#island.mode-panel .pg-wave { display: none; }
+@keyframes pg-wave { 0%, 100% { transform: scaleY(.18); } 50% { transform: scaleY(var(--a, .8)); } }
+/* The drop zone's and the upload's pictures (Lottie animations in the app). */
+#island .pg-dzico { display: grid; color: #5aa9ff; }
+#island .pg-cloud { display: grid; flex: none; color: #8fb8ff; }
