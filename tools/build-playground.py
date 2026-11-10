@@ -73,6 +73,8 @@ HOOKS = [
     ('style="position:absolute;left:50%;top:190px;margin-left:120px', 'pg-drop'),
     ('style="height:34px;width:150px;padding:0 12px', 'pg-search'),
     ('style="position:absolute;right:16px;display:flex;align-items:center;gap:12px;font-size:12px"', 'pg-tray'),
+    # Tanya layar's card in the Coba panel, hidden with the hold chip (pg-hold) while FEATURES.ask is off.
+    ('style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:linear-gradient(160deg,rgba(43,138,255,.2)', 'pg-ask'),
 ]
 for needle, cls in HOOKS:
     assert template.count(needle) == 1, needle
@@ -83,6 +85,24 @@ page_css = '\n'.join(lines[css_start:css_end])
 cls_start = next(i for i, l in enumerate(lines) if l.startswith('class Component extends DCLogic'))
 cls_end = max(i for i, l in enumerate(lines) if l.startswith('</script>'))
 logic = '\n'.join(lines[cls_start:cls_end])
+
+# The design's examples name the maker's own agents: generic names instead.
+AGENTS = [('Nilo', 'General'), ('Ciro', 'Dev')]
+for old_name, new_name in AGENTS:
+    template = re.sub(r'\b%s\b' % old_name, new_name, template)
+    logic = re.sub(r'\b%s\b' % old_name, new_name, logic)
+# Edits to the design's logic: Ctrl + Alt only with FEATURES.ask; the install steps name no version and
+# no Ctrl + Alt.
+LOGIC_EDITS = [
+    ("if ((e.key === 'Control' || e.key === 'Alt') && e.ctrlKey && e.altKey && !e.repeat)",
+     "if (FEATURES.ask && (e.key === 'Control' || e.key === 'Alt') && e.ctrlKey && e.altKey && !e.repeat)"),
+    ("['1', 'Buka aina-setup-1.0.0.exe',", "['1', 'Buka installer aina (.exe)',"),
+    ("['3', 'Tahan Ctrl + Alt, lalu bicara', 'aina melihat layarmu dan menunjuk tempatnya.']",
+     "['3', 'Arahkan kursor ke notch', 'Notch di atas layar terbuka saat kursor mendekat.']"),
+]
+for old_text, new_text in LOGIC_EDITS:
+    assert logic.count(old_text) == 1, old_text
+    logic = logic.replace(old_text, new_text)
 
 # The notch's page indicator as aina-notch draws it (ui/src/ui/overlay.html, island.js): dots and a pill
 # on the open page; hovered, the row widens into each page's icon (outline, filled on the pill), and a
@@ -322,6 +342,8 @@ NOTCH_PLACE = '''
 '''
 
 SMALL = '''
+/* Features of the design's page that are off (FEATURES in tools/playground-notch.js) */
+.no-ask .pg-hold,.no-ask .pg-ask{display:none !important}
 /* The notch's page indicator, as in aina-notch (overlay.html: .peek .dots). */
 .pg-dots { display: flex; justify-content: center; padding-top: 7px; --slot: 14px; --pop: cubic-bezier(.34, 1.5, .6, 1); }
 .pg-dots:hover { --slot: 30px; }

@@ -43,10 +43,14 @@ const FEATURES = {
   privacy: false, // the mic and screen dots, "don't look at this app", undo, quiet mode, the Privacy page
   clipboard: false, // what a copied number, phone number or tracking number offers (terbilang, WA, resi)
   parcel: false, // the "parcel on its way" pill
+  ask: false, // Tanya layar: hold Ctrl + Alt (or the button) and ask about the screen
+  library: false, // the Notes & knowledge page
 };
 // The notch's pages, by their index in Playground.pages, and the feature a page needs.
-const PAGE_FEATURE = { 8: 'privacy', 9: 'whatsapp' };
+const PAGE_FEATURE = { 6: 'library', 8: 'privacy', 9: 'whatsapp' };
 const pageOn = (i) => !PAGE_FEATURE[i] || FEATURES[PAGE_FEATURE[i]];
+// Parts of the design's own page (not the notch) hidden while their feature is off: .no-ask in playground.css.
+if (!FEATURES.ask) document.documentElement.classList.add('no-ask');
 // What each page is in aina-notch (island.js): its id, its color (the glow) and its dot's icon.
 const NPAGES = [
   { id: 'home', k: '#2b8aff', icon: ['home', 'home'] },
@@ -664,7 +668,7 @@ function view(v) {
                       {"style": "width:8px;height:8px;border-radius:50%;background:#f5a524;animation:pulse 1.4s ease-in-out infinite"}),
                     h("span",
                       {"style": "font-size:13px;font-weight:600"},
-                      "Ciro bekerja"),
+                      "Dev bekerja"),
                     h("span",
                       {"style": "font-size:11px;color:#8e9bb0"},
                       "+1"))] : null,
@@ -825,10 +829,10 @@ function view(v) {
                                   "2"),
                                 h("span",
                                   {"style": "font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"},
-                                  "Nilo butuh kamu"),
+                                  "General butuh kamu"),
                                 h("span",
                                   {"style": "font-size:10.5px;color:#8e9bb0;white-space:nowrap"},
-                                  "Ciro 17 m"))),
+                                  "Dev 17 m"))),
                             h("div",
                               {"onClick": v.goTimer, "style": "background:rgba(255,255,255,.055);border-radius:14px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;min-width:0", "class": "hv7"},
                               h("svg",
@@ -1430,7 +1434,7 @@ function view(v) {
                               {"style": "width:8px;height:8px;border-radius:50%;background:#ffb27a"}),
                             h("span",
                               {"style": "font-size:12.5px;font-weight:700"},
-                              "Nilo"),
+                              "General"),
                             h("span",
                               {"style": "font-size:11px;color:#ffb27a"},
                               "butuh kamu"),
@@ -1439,7 +1443,7 @@ function view(v) {
                               "4 m")),
                           h("div",
                             {"style": "font-size:12px;line-height:1.4"},
-                            "Nilo mau kirim email (budi@x.com) di Gmail. Boleh?"),
+                            "General mau kirim email (budi@x.com) di Gmail. Boleh?"),
                           h("div",
                             {"style": "display:flex;gap:6px"},
                             h("button",
@@ -1456,7 +1460,7 @@ function view(v) {
                               {"style": "width:8px;height:8px;border-radius:50%;background:#f5a524;animation:pulse 1.4s ease-in-out infinite"}),
                             h("span",
                               {"style": "font-size:12.5px;font-weight:700"},
-                              "Ciro"),
+                              "Dev"),
                             h("span",
                               {"style": "font-size:11px;color:#8e9bb0"},
                               "berjalan"),
@@ -2805,7 +2809,7 @@ function view(v) {
                                   {"class": "sdot"}),
                                 h("div",
                                   {"class": "tname"},
-                                  "Nilo"),
+                                  "General"),
                                 h("div",
                                   {"class": "tstat"},
                                   "butuh kamu"),
@@ -2814,7 +2818,7 @@ function view(v) {
                                   "4 mnt 12 dtk")),
                               h("div",
                                 {"class": "tdesc"},
-                                "Nilo mau kirim email (budi@x.com) di Gmail. Boleh?")),
+                                "General mau kirim email (budi@x.com) di Gmail. Boleh?")),
                             h("div",
                               {"class": "tctl"},
                               h("button",
@@ -2833,7 +2837,7 @@ function view(v) {
                                   {"class": "sdot"}),
                                 h("div",
                                   {"class": "tname"},
-                                  "Ciro"),
+                                  "Dev"),
                                 h("div",
                                   {"class": "tstat"},
                                   "berjalan"),
@@ -2898,7 +2902,7 @@ function view(v) {
         h("div",
           {"style": "flex:1;overflow:auto;padding:14px 14px 18px;display:flex;flex-direction:column;gap:18px"},
           (v.isCoba) ? [h("div",
-              {"style": "display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:linear-gradient(160deg,rgba(43,138,255,.2),rgba(43,138,255,.05));border:1px solid rgba(90,169,255,.3)"},
+              {"class": "pg-ask", "style": "display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:linear-gradient(160deg,rgba(43,138,255,.2),rgba(43,138,255,.05));border:1px solid rgba(90,169,255,.3)"},
               h("span",
                 {"style": "font-size:15px;font-weight:700"},
                 "Tanya layar"),
@@ -3313,7 +3317,7 @@ class Playground extends Component {
     this.onKey = (e) => {
       if (e.key === 'Escape') this.escape();
       if (e.key === 'Escape' && this.state.dlOpen) this.setState({ dlOpen: false });
-      if ((e.key === 'Control' || e.key === 'Alt') && e.ctrlKey && e.altKey && !e.repeat) { e.preventDefault(); this.holdStart(); }
+      if (FEATURES.ask && (e.key === 'Control' || e.key === 'Alt') && e.ctrlKey && e.altKey && !e.repeat) { e.preventDefault(); this.holdStart(); }
       if (e.key === 'Enter' && this.state.mode === 'undo') this.doUndo();
       if (e.key === 'Enter' && this.state.mode === 'ask') this.answerWith('yes');
       if (e.key === 'Enter' && this.state.mode === 'waAsk') this.waCommit();
@@ -3838,7 +3842,7 @@ class Playground extends Component {
       openDl: (e) => { if (e) e.stopPropagation(); this.setState({ dlOpen: true, dlStage: 'idle' }); },
       closeDl: (e) => { if (e) e.stopPropagation(); this.setState({ dlOpen: false }); },
       startDl: () => this.setState({ dlStage: 'started' }),
-      dlSteps: [['1', 'Buka aina-setup-1.0.0.exe', 'Ikuti wizard pemasangan. Tidak perlu hak admin.'], ['2', 'Masuk dengan Google', 'Atau lewati dulu. Notch tetap jalan tanpa akun.'], ['3', 'Tahan Ctrl + Alt, lalu bicara', 'aina melihat layarmu dan menunjuk tempatnya.']].map(([n, t, d]) => ({ n, t, d })),
+      dlSteps: [['1', 'Buka installer aina (.exe)', 'Ikuti wizard pemasangan. Tidak perlu hak admin.'], ['2', 'Masuk dengan Google', 'Atau lewati dulu. Notch tetap jalan tanpa akun.'], ['3', 'Arahkan kursor ke notch', 'Notch di atas layar terbuka saat kursor mendekat.']].map(([n, t, d]) => ({ n, t, d })),
       playTurn: this.playTurn, escape: this.escape
     };
   }
@@ -3989,7 +3993,7 @@ class Playground extends Component {
     // The mini pill: what is going on, most pressing first.
     const kind = { timer: 'timer', task: 'agents', focus: 'focus', music: 'music' }[s.mini] || 'timer';
     const lyric = kind === 'music' && s.setLyrics !== false ? lyrics[li] : '';
-    const [miniText, miniSub] = kind === 'agents' ? ['Ciro bekerja', '+1'] : kind === 'timer' ? [mmss(s.timerLeft), s.timerRunning ? 'Fokus' : fresh ? 'Siap' : 'Dijeda']
+    const [miniText, miniSub] = kind === 'agents' ? ['Dev bekerja', '+1'] : kind === 'timer' ? [mmss(s.timerLeft), s.timerRunning ? 'Fokus' : fresh ? 'Siap' : 'Dijeda']
       : kind === 'focus' ? ['aina-landing', '42 mnt'] : [lyric || 'Senja di Kota', lyric ? '' : 'Nadira'];
     const textW = (t, px) => t.length * px;
     const miniW = Math.max(264, 66 + (kind === 'timer' ? 26 : kind === 'focus' ? 24 : kind === 'agents' ? 16 : 0) + textW(miniText, kind === 'music' ? 7.1 : 7.4) + (miniSub ? 8 + textW(miniSub, 6) : 0));
@@ -4051,7 +4055,7 @@ class Playground extends Component {
       legacyNotch: legacy, nOn: !legacy,
       fLearn: FEATURES.learn, fWa: FEATURES.whatsapp, fPrivacy: FEATURES.privacy,
       utilItems: FEATURES.clipboard ? [...util, ...(v.utilItems || []).filter((_, i) => i !== 0 && i !== 3)] : util,
-      pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)),
+      pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)).map((it, n) => ({ ...it, num: String(n + 1).padStart(2, '0') })),
       baseItems: (v.baseItems || []).filter((it) => FEATURES.parcel || !/paket|kurir/i.test(it.label)),
       nCls: cls, nW: w,
       nStyle: `--w:${w}px;--h:${size[1]}px;--r:${size[2]}px;--ear:${size[3]}px;--glow:${glow};--glow-text:${glow === '#2b8aff' ? '#5aa9ff' : glow};--s:${scale}`,

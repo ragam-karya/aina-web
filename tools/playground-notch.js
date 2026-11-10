@@ -10,10 +10,14 @@ const FEATURES = {
   privacy: false, // the mic and screen dots, "don't look at this app", undo, quiet mode, the Privacy page
   clipboard: false, // what a copied number, phone number or tracking number offers (terbilang, WA, resi)
   parcel: false, // the "parcel on its way" pill
+  ask: false, // Tanya layar: hold Ctrl + Alt (or the button) and ask about the screen
+  library: false, // the Notes & knowledge page
 };
 // The notch's pages, by their index in Playground.pages, and the feature a page needs.
-const PAGE_FEATURE = { 8: 'privacy', 9: 'whatsapp' };
+const PAGE_FEATURE = { 6: 'library', 8: 'privacy', 9: 'whatsapp' };
 const pageOn = (i) => !PAGE_FEATURE[i] || FEATURES[PAGE_FEATURE[i]];
+// Parts of the design's own page (not the notch) hidden while their feature is off: .no-ask in playground.css.
+if (!FEATURES.ask) document.documentElement.classList.add('no-ask');
 // What each page is in aina-notch (island.js): its id, its color (the glow) and its dot's icon.
 const NPAGES = [
   { id: 'home', k: '#2b8aff', icon: ['home', 'home'] },
@@ -207,7 +211,7 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
     // The mini pill: what is going on, most pressing first.
     const kind = { timer: 'timer', task: 'agents', focus: 'focus', music: 'music' }[s.mini] || 'timer';
     const lyric = kind === 'music' && s.setLyrics !== false ? lyrics[li] : '';
-    const [miniText, miniSub] = kind === 'agents' ? ['Ciro bekerja', '+1'] : kind === 'timer' ? [mmss(s.timerLeft), s.timerRunning ? 'Fokus' : fresh ? 'Siap' : 'Dijeda']
+    const [miniText, miniSub] = kind === 'agents' ? ['Dev bekerja', '+1'] : kind === 'timer' ? [mmss(s.timerLeft), s.timerRunning ? 'Fokus' : fresh ? 'Siap' : 'Dijeda']
       : kind === 'focus' ? ['aina-landing', '42 mnt'] : [lyric || 'Senja di Kota', lyric ? '' : 'Nadira'];
     const textW = (t, px) => t.length * px;
     const miniW = Math.max(264, 66 + (kind === 'timer' ? 26 : kind === 'focus' ? 24 : kind === 'agents' ? 16 : 0) + textW(miniText, kind === 'music' ? 7.1 : 7.4) + (miniSub ? 8 + textW(miniSub, 6) : 0));
@@ -269,7 +273,7 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
       legacyNotch: legacy, nOn: !legacy,
       fLearn: FEATURES.learn, fWa: FEATURES.whatsapp, fPrivacy: FEATURES.privacy,
       utilItems: FEATURES.clipboard ? [...util, ...(v.utilItems || []).filter((_, i) => i !== 0 && i !== 3)] : util,
-      pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)),
+      pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)).map((it, n) => ({ ...it, num: String(n + 1).padStart(2, '0') })),
       baseItems: (v.baseItems || []).filter((it) => FEATURES.parcel || !/paket|kurir/i.test(it.label)),
       nCls: cls, nW: w,
       nStyle: `--w:${w}px;--h:${size[1]}px;--r:${size[2]}px;--ear:${size[3]}px;--glow:${glow};--glow-text:${glow === '#2b8aff' ? '#5aa9ff' : glow};--s:${scale}`,
