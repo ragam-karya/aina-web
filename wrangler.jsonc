@@ -18,6 +18,11 @@
   "services": [
     { "binding": "API", "service": "badi-cloud" }
   ],
+  // Page views and installer downloads (worker.js; queries in docs/analytics.md of aina-backend).
+  // Secret VISITOR_SALT (wrangler secret put VISITOR_SALT) salts the daily visitor hash.
+  "analytics_engine_datasets": [
+    { "binding": "EVENTS", "dataset": "aina_events" }
+  ],
   // Custom domains: Cloudflare creates the DNS records and certificates itself (the zone must be on Cloudflare).
   "routes": [
     { "pattern": "aina.ai.id", "custom_domain": true },
