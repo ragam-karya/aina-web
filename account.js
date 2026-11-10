@@ -128,7 +128,7 @@
           el('span', {}, `${account.planName || 'Free'} · ${creditsLeft(account)} kredit`),
         ),
         el('a', { href: '/langganan', role: 'menuitem' }, 'Langganan & tagihan'),
-        el('a', { href: 'badi://open', role: 'menuitem' }, 'Buka aplikasi aina'),
+        el('a', { href: 'aina://open', role: 'menuitem' }, 'Buka aplikasi aina'),
         el('button', { type: 'button', class: 'out', role: 'menuitem', on: { click: logout } }, 'Keluar'),
       );
       const btn = el('button', { type: 'button', class: 'me-btn', 'aria-haspopup': 'menu', 'aria-expanded': 'false' },

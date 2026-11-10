@@ -7,17 +7,62 @@
 #   python tools/build-playground.py <export.html> playground.js playground.css
 # where <export.html> is the design's template with its fonts' @font-face blocks and data: URIs taken
 # out (the template inside the "Smart notch UI mockups – aina Playground.html" bundle).
-import sys, re, json, html
+#
+# The notch itself is not the design's: it is drawn as aina-notch draws it, so the two look the same.
+# Its markup is tools/playground-notch.html, its logic tools/playground-notch.js (with FEATURES, the
+# switches for what the notch can do yet), and its styles and icons are read here from aina-notch
+# (ui/src/ui/overlay.html, icons.js, reacticons.js), next to this repo or at AINA_NOTCH.
+import os, sys, re, json, html
 from html.parser import HTMLParser
 
 src, out_js, out_css = sys.argv[1:4]
 text = open(src, encoding='utf-8').read()
 lines = text.split('\n')
+here = os.path.dirname(os.path.abspath(__file__))
+notch_root = os.environ.get('AINA_NOTCH') or os.path.join(here, '..', '..', 'aina-notch')
+notch_ui = os.path.join(notch_root, 'ui', 'src', 'ui')
+if not os.path.isdir(notch_ui):
+    raise SystemExit('aina-notch not found at %s (set AINA_NOTCH)' % notch_root)
+
+def notch_file(name):
+    return open(os.path.join(notch_ui, name), encoding='utf-8').read()
+
+# The notch's styles: everything for #island in overlay.html (not the page, not the Sprite panel).
+overlay = notch_file('overlay.html')
+NOTCH_CSS = overlay[overlay.index('  /* Dynamic Island'):overlay.index('  /* Sprite panel')]
+# Its icons: the line icons (icons.js, a JS object) and the react-icons it uses (reacticons.js, JSON).
+icons_js = notch_file('icons.js')
+i0 = icons_js.index('const ICONS = {')
+NICONS = icons_js[i0 + len('const ICONS = '):icons_js.index('\n  };', i0) + 4]
+react_js = notch_file('reacticons.js')
+NREACT = react_js[react_js.index('window.AINA_REACT_ICONS = ') + len('window.AINA_REACT_ICONS = '):].strip().rstrip(';')
+json.loads(NREACT)
+# The playground's notch: its markup, and its logic in two parts (top of the file, class members).
+NOTCH_HTML = open(os.path.join(here, 'playground-notch.html'), encoding='utf-8').read()
+notch_js = open(os.path.join(here, 'playground-notch.js'), encoding='utf-8').read()
+NOTCH_TOP, NOTCH_MEMBERS = notch_js.split('// ---- class members ----\n')
+NOTCH_TOP = NOTCH_TOP.replace('__NICONS__', NICONS.strip()).replace('__NREACT__', NREACT)
 
 # ---- the pieces ----
 start = next(i for i, l in enumerate(lines) if l.startswith('<div style="position:relative;height:100vh'))
 end = next(i for i, l in enumerate(lines) if l.startswith('</x-dc>'))
 template = '\n'.join(lines[start:end])
+NOTCH_START = '  <div sc-camel-on-mouse-enter="{{ onEnter }}" sc-camel-on-mouse-leave="{{ onLeave }}"'
+assert template.count(NOTCH_START) == 1, 'notch start'
+a = template.index(NOTCH_START)
+b = template.index('\n</main>', a)
+template = (template[:a] + '<sc-if value="{{ legacyNotch }}" hint-placeholder-val="{{ false }}">\n' + template[a:b]
+            + '\n</sc-if>\n' + NOTCH_HTML.rstrip() + template[b:])
+# The try-it panel's sections for features the notch doesn't have yet: kept, shown by FEATURES.
+for title, flag in (('Belajar · menjelaskan sambil mencoret', 'fLearn'),
+                    ('WhatsApp</span>\n        <sc-for list="{{ waItems }}"', 'fWa'),
+                    ('Privasi</span>\n        <sc-for list="{{ trustItems }}"', 'fPrivacy')):
+    at = template.index(title)
+    a = template.rindex('\n      <div', 0, at)
+    b = template.index('\n      </div>\n', at) + len('\n      </div>')
+    assert template[a:b].count('<sc-for') == 1, title
+    template = (template[:a] + '\n      <sc-if value="{{ %s }}" hint-placeholder-val="{{ false }}">' % flag
+                + template[a:b] + '\n      </sc-if>' + template[b:])
 
 # Hooks for the small-screen rules in playground.css (the design itself is laid out for a desktop).
 HOOKS = [
@@ -65,7 +110,7 @@ logic = logic.replace(DOTS_VALS_OLD, DOTS_VALS_NEW)
 
 icons = json.load(open(__file__.replace('build-playground.py', 'io5-icons.json'), encoding='utf-8'))['icons']
 ICON_JS = '''// Page icons (Ionicons 5 from react-icons 5.7.0, MIT; data in tools/io5-icons.json), drawn the way
-// react-icons' GenIcon and aina-notch's badiReactIcon draw them: fill and stroke in currentColor.
+// react-icons' GenIcon and aina-notch's ainaReactIcon draw them: fill and stroke in currentColor.
 const IO5 = %s;
 // [at rest, open] per page, in the order of Playground.pages.
 const PAGE_ICONS = [
@@ -98,7 +143,7 @@ ASSETS = {
 }
 LINKS = {
     'aina Landing.dc.html': '/',
-    'https://badi-cloud.faisalmashuri16.workers.dev/download': '/api/download',
+    'https://be.aina.ai.id/download': '/api/download',
 }
 VOID = {'img', 'input', 'br', 'hr', 'meta', 'link', 'source', 'area', 'col', 'embed', 'track', 'wbr'}
 
@@ -232,10 +277,10 @@ assert len(roots) == 1, len(roots)
 view = node_js(roots[0], set(), 1)
 
 logic = logic.replace('class Component extends DCLogic {', 'class Playground extends Component {', 1)
-# the render the design tool gave it: the template over renderVals()
+# the notch's members, with the render: the template over renderVals() and the notch's own values
 logic = logic.rstrip()
 assert logic.endswith('}')
-logic = logic[:-1].rstrip() + '\n\n  render() {\n    return view(this.renderVals());\n  }\n}\n'
+logic = logic[:-1].rstrip() + '\n\n' + NOTCH_MEMBERS.rstrip() + '\n}\n'
 
 js = '''// aina Playground: a simulated Windows desktop with the aina notch, to try aina in the browser.
 // Generated from the "aina Playground" design (Smart notch UI mockups) by tools/build-playground.py: the template
@@ -244,15 +289,38 @@ js = '''// aina Playground: a simulated Windows desktop with the aina notch, to 
 import { h, render, Component } from 'https://cdn.jsdelivr.net/npm/preact@10.24.3/dist/preact.module.js';
 
 %s
+%s
 function view(v) {
   return %s;
 }
 
 %s
 render(h(Playground, null), document.getElementById('playground'));
-''' % (ICON_JS, view, logic)
+''' % (ICON_JS, NOTCH_TOP, view, logic)
 
 open(out_js, 'w', encoding='utf-8', newline='\n').write(js)
+NOTCH_PLACE = '''
+/* The notch as aina-notch draws it (its styles above, from ui/src/ui/overlay.html), on the playground's
+   desktop instead of fixed at the top of a screen, scaled to fit, its size eased by CSS (the app springs it). */
+#island.pg-notch.here { position: absolute; z-index: 5; pointer-events: auto; transform: translateX(-50%) scale(var(--s, 1)); transform-origin: top center;
+  transition: width .46s cubic-bezier(.34, 1.22, .6, 1), height .46s cubic-bezier(.34, 1.22, .6, 1), opacity .25s ease; }
+#island.pg-notch .shape { transition: border-radius .46s cubic-bezier(.34, 1.22, .6, 1), box-shadow .3s ease; }
+/* aina (a Rive animation in the app) as a still. */
+#island img.pg-face { display: block; flex: none; width: 42px; height: 42px; object-fit: contain; }
+#island .peek-mascot img.pg-face { width: 60px; height: 60px; }
+#island .mini-art img.pg-face { position: absolute; left: -2px; top: -2px; width: 28px; height: 28px; }
+/* The voice wave (a canvas in the app). */
+#island .pg-wave { display: flex; align-items: center; gap: 2px; height: 18px; flex: none; }
+#island .pg-wave i { width: 2.5px; height: 18px; border-radius: 2px; background: var(--glow-text, #5aa9ff); transform: scaleY(.18); }
+#island .pg-wave.mic i, #island .pg-wave.voice i { animation: pg-wave .9s ease-in-out infinite; }
+#island .pg-wave.think i { opacity: .6; animation: pg-wave 1.8s ease-in-out infinite; }
+#island.mode-panel .pg-wave { display: none; }
+@keyframes pg-wave { 0%, 100% { transform: scaleY(.18); } 50% { transform: scaleY(var(--a, .8)); } }
+/* The drop zone's and the upload's pictures (Lottie animations in the app). */
+#island .pg-dzico { display: grid; color: #5aa9ff; }
+#island .pg-cloud { display: grid; flex: none; color: #8fb8ff; }
+'''
+
 SMALL = '''
 /* The notch's page indicator, as in aina-notch (overlay.html: .peek .dots). */
 .pg-dots { display: flex; justify-content: center; padding-top: 7px; --slot: 14px; --pop: cubic-bezier(.34, 1.5, .6, 1); }
@@ -298,5 +366,6 @@ SMALL = '''
 }
 '''
 
-open(out_css, 'w', encoding='utf-8', newline='\n').write(page_css + '\n/* style-hover from the design */\n' + '\n'.join(hover_rules) + '\n' + SMALL)
+open(out_css, 'w', encoding='utf-8', newline='\n').write(page_css + '\n/* style-hover from the design */\n' + '\n'.join(hover_rules) + '\n' + SMALL
+                                                             + '\n/* ---- the notch, from aina-notch ---- */\n' + NOTCH_CSS + NOTCH_PLACE)
 print('ok', len(js), 'bytes;', len(hover_rules), 'hover rules')

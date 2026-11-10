@@ -1,0 +1,149 @@
+<sc-if value="{{ nOn }}" hint-placeholder-val="{{ true }}">
+  <div id="island" class="{{ nCls }}" sc-camel-on-mouse-enter="{{ onEnter }}" sc-camel-on-mouse-leave="{{ onLeave }}" sc-camel-on-click="{{ stop }}" sc-camel-on-wheel="{{ onWheel }}" sc-camel-on-pointer-down="{{ onPDown }}" sc-camel-on-pointer-up="{{ onPUp }}" style="{{ nStyle }}">
+    <div class="uglow"></div>
+    <div class="shape">
+      <div class="glow"></div>
+      <div class="{{ miniCls }}">
+        <span class="{{ miniArtCls }}"><img class="pg-face" src="/img/aina-mascot.png" alt=""></span>
+        <span class="mini-main"><span class="dot"></span><span class="mini-ring">{{ miniRing }}</span><span class="mini-ico">{{ miniIco }}</span><sc-if value="{{ miniText }}"><span class="mini-text">{{ miniText }}</span></sc-if><sc-if value="{{ miniSub }}"><span class="mini-sub">{{ miniSub }}</span></sc-if></span>
+      </div>
+      <div class="content" style="width:{{ nW }}px">
+        <div class="row">
+          <img class="pg-face" src="/img/aina-mascot.png" alt="">
+          <div class="rcol">
+            <div class="rtop"><div class="label">{{ rowLabel }}</div><span class="{{ waveCls }}"><sc-for list="{{ waveBars }}" as="b"><i style="{{ b }}"></i></sc-for></span></div>
+            <sc-if value="{{ you }}"><div class="you">{{ you }}</div></sc-if>
+          </div>
+          <span class="kbd esc">Esc</span>
+        </div>
+        <div class="body"><div class="{{ sayCls }}">{{ say }}</div></div>
+        <div class="dropzone"><div class="pg-dzico">{{ dzIco }}</div><div class="dz-title">{{ dzTitle }}</div><div class="dz-hint">{{ dzHint }}</div></div>
+        <div class="uploadbox"><div class="pg-cloud">{{ cloudIco }}</div><div class="ucol"><div class="uhead"><span class="utitle">{{ upTitle }}</span><span class="upct">{{ upPct }}</span></div><div class="bar"><i style="width:{{ upPct }}"></i></div></div></div>
+        <div class="{{ panelCls }}">
+          <div class="lines">
+            <sc-if value="{{ pNote }}"><div class="note"><div class="note-summary"><div class="note-label">Ringkasan</div><div>{{ pNoteSum }}</div></div><div class="note-text">{{ pNoteText }}</div></div></sc-if>
+          </div>
+          <div class="actions"><sc-for list="{{ pActions }}" as="a"><button type="button" class="{{ a.tone }}" sc-camel-on-click="{{ a.onClick }}">{{ a.label }}</button></sc-for></div>
+        </div>
+        <div class="peek">
+          <div class="peek-body">
+            <div class="top">
+              <div class="clock">{{ ckH }}<span class="sep">{{ ckSep }}</span>{{ ckM }}</div>
+              <div class="date">{{ ckDate }}</div>
+              <div class="peek-mascot"><img class="pg-face" src="/img/aina-mascot.png" alt=""></div>
+              <button type="button" class="wx" title="terasa 35°">
+                <div class="wtop"><span class="wxi k-partly"><svg sc-camel-view-box="0 0 24 24" width="30" height="30"><g class="sun" style="transform-origin:8.5px 8px"><circle cx="8.5" cy="8" r="3.2"></circle><g class="rays"><line x1="8.5" y1="3.2" x2="8.5" y2="1.4" transform="rotate(0 8.5 8)"></line><line x1="8.5" y1="3.2" x2="8.5" y2="1.4" transform="rotate(45 8.5 8)"></line><line x1="8.5" y1="3.2" x2="8.5" y2="1.4" transform="rotate(90 8.5 8)"></line><line x1="8.5" y1="3.2" x2="8.5" y2="1.4" transform="rotate(135 8.5 8)"></line><line x1="8.5" y1="3.2" x2="8.5" y2="1.4" transform="rotate(180 8.5 8)"></line><line x1="8.5" y1="3.2" x2="8.5" y2="1.4" transform="rotate(225 8.5 8)"></line><line x1="8.5" y1="3.2" x2="8.5" y2="1.4" transform="rotate(270 8.5 8)"></line><line x1="8.5" y1="3.2" x2="8.5" y2="1.4" transform="rotate(315 8.5 8)"></line></g></g><g class="drift"><path class="cl" d="M6.6 18.4h10.6a3.9 3.9 0 0 0 .6-7.75 5.3 5.3 0 0 0-10.3-1.1 4.25 4.25 0 0 0-.9 8.85z"></path></g></svg></span><div class="wt">31°</div></div>
+                <div class="wc">Cerah berawan</div>
+                <div class="wp">Jakarta Selatan · 33° / 25°</div>
+              </button>
+              <div class="credits">{{ creditsKids }}</div>
+            </div>
+            <div class="vsep"></div>
+            <div class="pmain-col">
+              <div class="phd"><div class="ptitle">{{ pageTitle }}</div><div class="parrows"><button type="button" class="parrow" aria-label="Halaman sebelumnya" disabled="{{ prevOff }}" sc-camel-on-click="{{ prevPage }}">‹</button><button type="button" class="parrow" aria-label="Halaman berikutnya" disabled="{{ nextOff }}" sc-camel-on-click="{{ nextPage }}">›</button></div></div>
+              <div class="page"><div class="pfit">
+
+                <sc-if value="{{ pg0 }}">
+                  <div class="item widget homepage">
+                    <div class="{{ sboxCls }}"><div class="sico">{{ sparkIco14 }}</div><input type="text" spellcheck="false" autocomplete="off" placeholder="Hitung, atau tulis angka untuk terbilang…" value="{{ nq }}" sc-camel-on-input="{{ onNq }}" sc-camel-on-key-down="{{ onNqKey }}" sc-camel-on-focus="{{ onNqFocus }}" sc-camel-on-blur="{{ onNqBlur }}"><sc-if value="{{ skind }}"><div class="{{ skindCls }}">{{ skind }}</div></sc-if></div>
+                    <div class="hbody">
+                      <sc-if value="{{ hTiles }}">
+                        <div class="hgrid"><sc-for list="{{ tiles }}" as="t"><div class="{{ t.cls }}" style="--k:{{ t.k }}" data-page="{{ t.page }}" sc-camel-on-click="{{ t.onClick }}"><div class="hico">{{ t.ico }}</div><div class="grow"><sc-if value="{{ t.big }}"><div class="big">{{ t.big }}</div></sc-if><div class="main">{{ t.main }}</div><div class="sub">{{ t.sub }}</div></div></div></sc-for></div>
+                      </sc-if>
+                      <sc-if value="{{ hAns }}">
+                        <div class="sans"><div class="scol"><div class="ssub">{{ aSub }}</div><div class="smain">{{ aMain }}</div><sc-if value="{{ aWords }}"><div class="swords">{{ aWords }}</div></sc-if></div><div class="sact"><button type="button" class="{{ c1Cls }}" sc-camel-on-click="{{ copyMain }}">{{ c1Label }}</button><sc-if value="{{ aWords }}"><button type="button" class="{{ c2Cls }}" sc-camel-on-click="{{ copyWords }}">{{ c2Label }}</button></sc-if></div></div>
+                      </sc-if>
+                      <sc-if value="{{ hNone }}">
+                        <div class="sans none"><div class="shint">Belum aku kenali. Coba salah satu:</div><div class="sex"><sc-for list="{{ sEx }}" as="e"><button type="button" class="chip" sc-camel-on-click="{{ e.onClick }}">{{ e.q }}</button></sc-for></div></div>
+                      </sc-if>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ pg1 }}">
+                  <div class="{{ pomoCls }}">
+                    <div class="dial">{{ dialRing }}<div class="count">{{ tCount }}</div><div class="dstate">{{ tState }}</div></div>
+                    <div class="grow">
+                      <div class="phead"><div class="main">Fokus</div><div class="sub">Sesi 2 dari 4</div><div class="rounds"><sc-for list="{{ rounds }}" as="r"><div class="{{ r }}"></div></sc-for></div></div>
+                      <div class="pctl"><button type="button" class="primary" sc-camel-on-click="{{ toggleTimer }}">{{ tPlayKids }}</button><button type="button" sc-camel-on-click="{{ skipTimer }}">Lewati</button><button type="button" sc-camel-on-click="{{ resetTimer }}">Ulang</button><button type="button" class="danger" sc-camel-on-click="{{ stopTimer }}">Stop</button><button type="button" class="icon" title="Pengaturan pomodoro" aria-label="Pengaturan pomodoro">{{ gearIco }}</button></div>
+                      <div class="pstats"><span><b>3</b>sesi hari ini</span><div class="ends today">{{ flagIco }}<span>{{ tEnds }}</span></div><div class="ptags">aina-landing</div></div>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ pg2 }}">
+                  <div class="item widget rempage dens-compact">
+                    <div class="chead2">
+                      <div class="seg"><sc-for list="{{ remSeg }}" as="t"><button type="button" class="{{ t.cls }}" sc-camel-on-click="{{ t.onClick }}">{{ t.label }}</button></sc-for></div>
+                      <div class="cnav"><button type="button" class="nav">‹</button><sc-if value="{{ remCal }}"><div class="navday">Nov 2026</div></sc-if><sc-if value="{{ remDayNav }}"><button type="button" class="navday">Hari ini</button></sc-if><button type="button" class="nav">›</button></div>
+                      <div class="ctools"><button type="button" class="chip gsync s-ok" title="Google · Terakhir sinkron 09.32"></button><button type="button" class="primary-ic" title="Tambah">{{ plusIco }}</button></div>
+                    </div>
+                    <sc-if value="{{ remAgenda }}">
+                      <button type="button" class="cpline">{{ mosqueIco }}<div class="pn">Dzuhur</div><div class="pa">11.39</div><div class="pr">1 jam 58 menit lagi</div><div class="pbar2"><i style="width:62%"></i></div></button>
+                      <div class="clist"><sc-for list="{{ remRows }}" as="e"><div class="{{ e.cls }}"><div class="ctime">{{ e.time }}</div><div class="cmark"></div><div class="grow"><div class="main">{{ e.title }}</div><div class="sub">{{ e.sub }}</div></div><div class="{{ e.src }}">{{ e.srcText }}</div></div></sc-for></div>
+                    </sc-if>
+                    <sc-if value="{{ remTimeline }}">
+                      <div class="ctline"><div class="cgroup">Hari ini</div><sc-for list="{{ remRows }}" as="e"><div class="{{ e.cls }}"><div class="ctime">{{ e.time }}</div><div class="cmark"></div><div class="grow"><div class="main">{{ e.title }}</div><div class="sub">{{ e.sub }}</div></div><div class="{{ e.src }}">{{ e.srcText }}</div></div></sc-for></div>
+                    </sc-if>
+                    <sc-if value="{{ remCal }}">
+                      <div class="ccal"><div class="cgrid"><sc-for list="{{ calWh }}" as="w"><div class="wh">{{ w }}</div></sc-for><sc-for list="{{ calCells }}" as="c"><button type="button" class="{{ c.cls }}">{{ c.n }}<sc-if value="{{ c.dot }}"><div class="dot"></div></sc-if></button></sc-for></div><div class="clist"><sc-for list="{{ remRows }}" as="e"><div class="{{ e.cls }}"><div class="ctime">{{ e.time }}</div><div class="cmark"></div><div class="grow"><div class="main">{{ e.title }}</div><div class="sub">{{ e.sub }}</div></div><div class="{{ e.src }}">{{ e.srcText }}</div></div></sc-for></div></div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ pg3 }}">
+                  <div class="item widget praypage">
+                    <div class="prhead"><div class="pnext"><b>Dzuhur</b> 1 jam 58 menit lagi</div><div class="pmeta">Jakarta Selatan · Kemenag · Notifikasi 10 menit sebelum</div></div>
+                    <div class="pgrid"><sc-for list="{{ prayCells }}" as="p"><div class="{{ p.cls }}"><div class="pn">{{ p.name }}</div><div class="pa">{{ p.time }}</div></div></sc-for></div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ pg4 }}">
+                  <div class="{{ mediaCls }}">
+                    <div class="{{ artCls }}">{{ musicIco }}<div class="eq"><i></i><i></i><i></i></div></div>
+                    <div class="mcol">
+                      <div class="mhead"><div class="main">Senja di Kota</div><div class="sub">Nadira · Pulang</div></div>
+                      <sc-if value="{{ lyricUnder }}"><div class="lyric">{{ lyricNow }}</div></sc-if>
+                      <div class="mbar"><div class="t">{{ mPos }}</div><div class="pbar seek"><i style="width:{{ mPct }}"></i></div><div class="t">3:34</div></div>
+                      <div class="mctl"><div class="ctl"><button type="button" class="icon" aria-label="Acak">{{ shuffleIco }}</button><button type="button" class="icon" aria-label="Sebelumnya">{{ prevIco }}</button><button type="button" class="icon play" sc-camel-on-click="{{ togglePlay }}" aria-label="Putar atau jeda">{{ playIco }}</button><button type="button" class="icon" aria-label="Berikutnya">{{ nextIco }}</button><button type="button" class="icon" aria-label="Ulangi">{{ repeatIco }}</button></div><div class="vol"><button type="button" class="icon" aria-label="Bisukan">{{ volIco }}</button><div class="vbar"><i style="width:68%"></i></div></div></div>
+                      <div class="mtools"><button type="button" class="src">{{ srcKids }}</button><div class="mright"><button type="button" class="{{ lyrBtnCls }}" title="Lirik" sc-camel-on-click="{{ toggleLyr }}">{{ lyrIco }}</button><button type="button" class="icon" title="Output suara">{{ headIco }}</button></div></div>
+                    </div>
+                    <sc-if value="{{ lyricCol }}">
+                      <div class="lcol"><sc-for list="{{ lyricLines }}" as="l"><div class="{{ l.cls }}">{{ l.t }}</div></sc-for><div class="lsrc">Lirik · LRCLIB</div></div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ pg5 }}">
+                  <div class="item widget focuspage on">
+                    <div class="grow">
+                      <div class="fhead"><div class="lead">{{ folderIco }}</div><div class="grow"><div class="main">aina-landing</div><div class="fpath">D:\Proyek\aina-landing</div></div><div class="live">42 mnt</div></div>
+                      <div class="fline"><span class="k">Target sesi:</span> rapikan hero dan buat responsif di 360 px</div>
+                      <div class="frow"><div class="grow"><div class="main">Kunci edit</div><div class="sub">{{ lockSub }}</div></div><button type="button" class="{{ lockCls }}" role="switch" aria-label="Kunci edit" sc-camel-on-click="{{ toggleLock }}"></button></div>
+                      <div class="fbtns"><button type="button" class="primary">{{ fDoneKids }}</button><button type="button">{{ fOpenKids }}</button><button type="button">{{ fNoteKids }}</button></div>
+                    </div>
+                    <div class="fside"><div class="cap">Pomodoro untuk fokus ini</div><div class="fstat timer"><b>Fokus</b><span>Sesi 2 dari 4</span></div><div class="fstat"><b>2</b><span>pomodoro · 50 mnt</span></div></div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ pg6 }}">
+                  <div class="item widget libpage">
+                    <div class="hgrid"><sc-for list="{{ libTiles }}" as="t"><div class="{{ t.cls }}" style="--k:{{ t.k }}"><div class="hico">{{ t.ico }}</div><div class="grow"><div class="big">{{ t.big }}</div><div class="main">{{ t.main }}</div><div class="sub">{{ t.sub }}</div></div></div></sc-for></div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ pg7 }}">
+                  <div class="thead"><button type="button" class="chip on">Aktif 2</button><button type="button" class="chip">Riwayat 1</button></div>
+                  <div class="item task s-needs"><div class="grow"><div class="sub tline"><div class="sdot"></div><div class="tname">Nilo</div><div class="tstat">butuh kamu</div><span class="ttime">4 mnt 12 dtk</span></div><div class="tdesc">Nilo mau kirim email (budi@x.com) di Gmail. Boleh?</div></div><div class="tctl"><button type="button" class="icon">{{ openIco }}</button><button type="button" class="icon danger">{{ stopIco }}</button></div></div>
+                  <div class="item task s-running"><div class="grow"><div class="sub tline"><div class="sdot"></div><div class="tname">Ciro</div><div class="tstat">berjalan</div><div class="tfrom">aina-landing</div><span class="ttime long">17 mnt 3 dtk</span></div><div class="tdesc">Menjalankan tes unit di src/hero…</div></div><div class="tctl"><button type="button" class="icon">{{ openIco }}</button><button type="button" class="icon danger">{{ stopIco }}</button></div></div>
+                </sc-if>
+
+              </div></div>
+              <div class="dots"><div class="dtrack"><div class="pind" style="--i:{{ dotIdx }}"></div><sc-for list="{{ nDots }}" as="d"><div class="{{ d.cls }}" title="{{ d.label }}" sc-camel-on-click="{{ d.onClick }}">{{ d.icon }}</div></sc-for></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
