@@ -12,6 +12,7 @@ const FEATURES = {
   parcel: false, // the "parcel on its way" pill
   ask: false, // Tanya layar: hold Ctrl + Alt (or the button) and ask about the screen
   library: false, // the Notes & knowledge page
+  tasks: false, // the Tugas page and the mini notch's "working" dot (agents)
   dictation: false, // Dikte: tap or hold Ctrl + Win to dictate a note (as aina-notch's dictation.rs)
 };
 // Trying a hidden feature: ?fitur=ask,dictation turns those on in this tab only.
@@ -20,7 +21,7 @@ for (const f of (new URLSearchParams(location.search).get('fitur') || '').split(
 // switched dictation on; shorter than MIN in all it is dropped; it ends by itself after MAX.
 const DK_TAP_MS = 600, DK_MIN_MS = 350, DK_MAX_S = 600;
 // The notch's pages, by their index in Playground.pages, and the feature a page needs.
-const PAGE_FEATURE = { 6: 'library', 8: 'privacy', 9: 'whatsapp' };
+const PAGE_FEATURE = { 6: 'library', 7: 'tasks', 8: 'privacy', 9: 'whatsapp' };
 const pageOn = (i) => !PAGE_FEATURE[i] || FEATURES[PAGE_FEATURE[i]];
 // Parts of the design's own page (not the notch) hidden while their feature is off: .no-ask in playground.css.
 if (!FEATURES.ask) document.documentElement.classList.add('no-ask');
@@ -327,7 +328,7 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
     // The mini pill: what is going on, most pressing first.
     const kind = { timer: 'timer', task: 'agents', focus: 'focus', music: 'music' }[s.mini] || 'timer';
     const lyric = kind === 'music' && s.setLyrics !== false ? lyrics[li] : '';
-    const [miniText, miniSub] = kind === 'agents' ? ['Dev bekerja', '+1'] : kind === 'timer' ? [mmss(s.timerLeft), s.timerRunning ? 'Fokus' : fresh ? 'Siap' : 'Dijeda']
+    const [miniText, miniSub] = kind === 'agents' ? ['aina bekerja', '+1'] : kind === 'timer' ? [mmss(s.timerLeft), s.timerRunning ? 'Fokus' : fresh ? 'Siap' : 'Dijeda']
       : kind === 'focus' ? ['aina-landing', '42 mnt'] : [lyric || 'Senja di Kota', lyric ? '' : 'Nadira'];
     const textW = (t, px) => t.length * px;
     const miniW = Math.max(264, 66 + (kind === 'timer' ? 26 : kind === 'focus' ? 24 : kind === 'agents' ? 16 : 0) + textW(miniText, kind === 'music' ? 7.1 : 7.4) + (miniSub ? 8 + textW(miniSub, 6) : 0));
@@ -394,7 +395,7 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
         : { ...it, label: this.dk ? 'Selesaikan dikte' : 'Coba dikte', hint: 'atau Ctrl + Win', onClick: () => this.dikteClick() }),
       utilItems: FEATURES.clipboard ? [...util, ...(v.utilItems || []).filter((_, i) => i !== 0 && i !== 3)] : util,
       pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)).map((it, n) => ({ ...it, num: String(n + 1).padStart(2, '0') })),
-      baseItems: (v.baseItems || []).filter((it) => FEATURES.parcel || !/paket|kurir/i.test(it.label)),
+      baseItems: (v.baseItems || []).filter((it) => (FEATURES.parcel || !/paket|kurir/i.test(it.label)) && (FEATURES.tasks || !/bekerja/i.test(it.label))),
       nCls: cls, nW: w,
       nStyle: `--w:${w}px;--h:${size[1]}px;--r:${size[2]}px;--ear:${size[3]}px;--glow:${glow};--glow-text:${glow === '#2b8aff' ? '#5aa9ff' : glow};--s:${scale}`,
       miniCls: `mini kind-${kind} phase-work${kind === 'music' && s.playing ? ' music' : ''}${lyric ? ' lyric' : ''}${kind === 'timer' && !s.timerRunning ? ' paused' : ''}`,

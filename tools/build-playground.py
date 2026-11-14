@@ -86,8 +86,8 @@ cls_start = next(i for i, l in enumerate(lines) if l.startswith('class Component
 cls_end = max(i for i, l in enumerate(lines) if l.startswith('</script>'))
 logic = '\n'.join(lines[cls_start:cls_end])
 
-# The design's examples name the maker's own agents: generic names instead.
-AGENTS = [('Nilo', 'General'), ('Ciro', 'Dev')]
+# The design's examples name the maker's own agents: no names on the website, aina does the work.
+AGENTS = [('Nilo', 'aina'), ('Ciro', 'aina')]
 for old_name, new_name in AGENTS:
     template = re.sub(r'\b%s\b' % old_name, new_name, template)
     logic = re.sub(r'\b%s\b' % old_name, new_name, logic)
