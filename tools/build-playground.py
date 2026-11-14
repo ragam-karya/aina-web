@@ -91,9 +91,13 @@ AGENTS = [('Nilo', 'aina'), ('Ciro', 'aina')]
 for old_name, new_name in AGENTS:
     template = re.sub(r'\b%s\b' % old_name, new_name, template)
     logic = re.sub(r'\b%s\b' % old_name, new_name, logic)
+# The design asks with Ctrl + Alt; aina-notch asks with Ctrl + Win (and dictates with Ctrl + Alt): the
+# hold chip and the Coba panel's Tanya layar card name Win.
+assert template.count('>Alt</span>') == 2, 'Ctrl + Alt chips'
+template = template.replace('>Alt</span>', '>Win</span>')
 # Edits to the design's logic: the talk and dictation keys go through hotkeyDown/Up (playground-notch.js:
-# Ctrl + Alt with FEATURES.ask, Ctrl + Win with FEATURES.dictation, as aina-notch reads them); the
-# install steps name no version and no Ctrl + Alt.
+# Ctrl + Win with FEATURES.ask, Ctrl + Alt with FEATURES.dictation, as aina-notch reads them); the
+# install steps name no version and no talk keys.
 LOGIC_EDITS = [
     ("if ((e.key === 'Control' || e.key === 'Alt') && e.ctrlKey && e.altKey && !e.repeat) { e.preventDefault(); this.holdStart(); }",
      "this.hotkeyDown(e);"),
@@ -102,6 +106,7 @@ LOGIC_EDITS = [
     # Dictating (mode dikteRec) is the notch's own view; the design's notch sizes need an entry for it.
     ("    const dims = {\n", "    const dims = { dikteRec: [600, 72, 26],\n"),
     ("['1', 'Buka aina-setup-1.0.0.exe',", "['1', 'Buka installer aina (.exe)',"),
+    ("['dikte', 'Dikte tersimpan', 'Ctrl+Win']", "['dikte', 'Dikte tersimpan', 'Ctrl+Alt']"),
     ("['3', 'Tahan Ctrl + Alt, lalu bicara', 'aina melihat layarmu dan menunjuk tempatnya.']",
      "['3', 'Arahkan kursor ke notch', 'Notch di atas layar terbuka saat kursor mendekat.']"),
 ]
@@ -379,7 +384,7 @@ SMALL = '''
   .pg-hint { top: 34px !important; left: 12px !important; right: 12px !important; transform: none !important; display: flex; justify-content: center; }
   .pg-hint > div > span { white-space: normal !important; text-align: center; }
 }
-/* No keyboard or mouse: the Ctrl + Alt chip and "move the pointer" hint don't apply; tap the notch,
+/* No keyboard or mouse: the Ctrl + Win chip and "move the pointer" hint don't apply; tap the notch,
    or use "Tahan untuk bertanya" in the panel. */
 @media (hover: none) {
   /* Nothing to hover: the icons stay out, so the pages can be told apart and tapped. */

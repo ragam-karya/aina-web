@@ -43,10 +43,10 @@ const FEATURES = {
   privacy: false, // the mic and screen dots, "don't look at this app", undo, quiet mode, the Privacy page
   clipboard: false, // what a copied number, phone number or tracking number offers (terbilang, WA, resi)
   parcel: false, // the "parcel on its way" pill
-  ask: false, // Tanya layar: hold Ctrl + Alt (or the button) and ask about the screen
+  ask: false, // Tanya layar: hold Ctrl + Win (or the button) and ask about the screen
   library: false, // the Notes & knowledge page
   tasks: false, // the Tugas page
-  dictation: false, // Dikte: tap or hold Ctrl + Win to dictate a note (as aina-notch's dictation.rs)
+  dictation: false, // Dikte: tap or hold Ctrl + Alt to dictate a note (as aina-notch's dictation.rs)
   sprites: false, // Sprites: the "Sprite bekerja" pill (aina's background helpers), kept quiet until they are announced
 };
 // Trying a hidden feature: ?fitur=ask,dictation turns those on in this tab only.
@@ -618,7 +618,7 @@ function view(v) {
           "+"),
         h("span",
           {"style": "font-family:Consolas,monospace;font-size:11.5px;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.14)"},
-          "Alt"),
+          "Win"),
         h("span",
           null,
           v.holdText2)),
@@ -2931,7 +2931,7 @@ function view(v) {
                 " + ",
                 h("span",
                   {"style": "font-family:Consolas,monospace;background:#232a35;padding:1px 6px;border-radius:5px;color:#e8ecf2"},
-                  "Alt"),
+                  "Win"),
                 " di keyboard")),
             h("div",
               {"style": "display:flex;flex-direction:column;gap:4px"},
@@ -3822,7 +3822,7 @@ class Playground extends Component {
         .map(([k, label, hint]) => ({ label, hint, ...sel((k === 'rest' ? s.base === 'rest' : s.base === 'mini' && s.mini === k) && (mode === 'rest' || mode === 'mini')), onClick: () => this.setBase(k) })),
       pageItems: this.pages.map((label, i) => ({ label, num: String(i + 1).padStart(2, '0'), ...sel(mode === 'peek' && s.page === i), onClick: () => this.openPage(i) })),
       phaseItems: ['Mendengar', 'Melihat', 'Berpikir', 'Menjawab'].map((label, i) => ({ label, ...sel(mode === 'turn' && s.phase === i), bg: mode === 'turn' && s.phase === i ? 'rgba(43,138,255,.14)' : '#1c2027', onClick: () => this.setPhase(i) })),
-      momentItems: [['ask', 'Pertanyaan izin', 'Boleh / Jangan'], ['drop', 'Zona drop', 'seret file'], ['upload', 'Upload ke Drive', 'progres'], ['dikte', 'Dikte tersimpan', 'Ctrl+Win'], ['kredit', 'Kredit habis', '0 kredit']]
+      momentItems: [['ask', 'Pertanyaan izin', 'Boleh / Jangan'], ['drop', 'Zona drop', 'seret file'], ['upload', 'Upload ke Drive', 'progres'], ['dikte', 'Dikte tersimpan', 'Ctrl+Alt'], ['kredit', 'Kredit habis', '0 kredit']]
         .map(([k, label, hint]) => ({ label, hint, ...sel(mode === k), onClick: () => this.moment(k) })),
       panelTabs: [['coba', 'Coba'], ['set', 'Settings']].map(([k, label]) => ({ label, on: s.panelTab === k, bg: s.panelTab === k ? '#2b8aff' : 'transparent', fg: s.panelTab === k ? '#fff' : '#c3cbd6', onClick: () => this.setState({ panelTab: k }) })),
       isCoba: s.panelTab === 'coba', isSet: s.panelTab === 'set',
@@ -3851,12 +3851,12 @@ class Playground extends Component {
 
 
   // ---- The talk and dictation keys, as aina-notch reads them (aina-input hotkeys.rs, talk.rs) ----
-  // Ctrl + Alt asks while held (FEATURES.ask); Ctrl + Win dictates (FEATURES.dictation). Asking is never
-  // Ctrl + Win. A combo counts only when exactly its modifiers are down; a real key pressed during a
+  // Ctrl + Win asks while held (FEATURES.ask); Ctrl + Alt dictates (FEATURES.dictation). The two never
+  // share keys. A combo counts only when exactly its modifiers are down; a real key pressed during a
   // hold means a shortcut, not talking, and cancels it; Esc stops everything.
   comboOf(e) {
-    if (e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey) return 'ask';
-    if (e.ctrlKey && e.metaKey && !e.altKey && !e.shiftKey) return 'dikte';
+    if (e.ctrlKey && e.metaKey && !e.altKey && !e.shiftKey) return 'ask';
+    if (e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey) return 'dikte';
     return '';
   }
   hotkeyDown(e) {
@@ -3873,7 +3873,7 @@ class Playground extends Component {
   }
   hotkeyUp(e) {
     const held = this.keysHeld;
-    if (!held || !(held === 'ask' ? ['Control', 'Alt'] : ['Control', 'Meta']).includes(e.key)) return;
+    if (!held || !(held === 'ask' ? ['Control', 'Meta'] : ['Control', 'Alt']).includes(e.key)) return;
     this.keysHeld = '';
     if (held === 'ask') this.holdEnd(); else this.dikteUp();
   }
@@ -4135,7 +4135,7 @@ class Playground extends Component {
     // The turn row.
     const PH = ['Mendengar…', 'Melihat area…', 'Berpikir…', 'Menjawab…'];
     const rowLabel = dikteRec ? (dikteListening ? 'Mendikte… ' + mss(s.dkSec || 0) : 'Oke…') : waiting ? 'Butuh izinmu' : view === 'panel' ? inPanel.title : PH[s.phase] || 'aina';
-    const you = dikteRec ? (!dikteListening ? '' : s.dkHeld ? 'Lepas untuk selesai' : 'Tekan Ctrl + Win lagi untuk selesai · Esc batal')
+    const you = dikteRec ? (!dikteListening ? '' : s.dkHeld ? 'Lepas untuk selesai' : 'Tekan Ctrl + Alt lagi untuk selesai · Esc batal')
       : waiting ? 'Jawab dengan suara, Enter, atau Esc' : view === 'panel' ? (panelSub ? inPanel.lines[0] : '') : mode === 'turn' ? '“gimana cara kasih warna otomatis ke sel yang di bawah target?”' : '';
     const say = dikteRec ? '' : waiting ? 'Aku mau hapus kalkulator.html dari folder aina ke Recycle Bin. Boleh?' : this.answer.slice(0, s.typed);
     const waveKind = dikteRec ? (dikteListening ? 'mic' : 'think') : mode === 'turn' ? ['mic', 'think', 'think', 'voice'][s.phase] : waiting ? 'mic' : '';
@@ -4169,7 +4169,7 @@ class Playground extends Component {
       fLearn: FEATURES.learn, fWa: FEATURES.whatsapp, fPrivacy: FEATURES.privacy,
       // With FEATURES.dictation the "Dikte tersimpan" moment becomes a real dictation to try.
       momentItems: (v.momentItems || []).map((it) => it.label !== 'Dikte tersimpan' || !FEATURES.dictation ? it
-        : { ...it, label: this.dk ? 'Selesaikan dikte' : 'Coba dikte', hint: 'atau Ctrl + Win', onClick: () => this.dikteClick() }),
+        : { ...it, label: this.dk ? 'Selesaikan dikte' : 'Coba dikte', hint: 'atau Ctrl + Alt', onClick: () => this.dikteClick() }),
       utilItems: FEATURES.clipboard ? [...util, ...(v.utilItems || []).filter((_, i) => i !== 0 && i !== 3)] : util,
       pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)).map((it, n) => ({ ...it, num: String(n + 1).padStart(2, '0') })),
       baseItems: (v.baseItems || []).filter((it) => (FEATURES.parcel || !/paket|kurir/i.test(it.label)) && (FEATURES.sprites || !/sprite/i.test(it.label))),
