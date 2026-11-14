@@ -45,8 +45,9 @@ const FEATURES = {
   parcel: false, // the "parcel on its way" pill
   ask: false, // Tanya layar: hold Ctrl + Alt (or the button) and ask about the screen
   library: false, // the Notes & knowledge page
-  tasks: false, // the Tugas page and the mini notch's "working" dot (agents)
+  tasks: false, // the Tugas page
   dictation: false, // Dikte: tap or hold Ctrl + Win to dictate a note (as aina-notch's dictation.rs)
+  sprites: false, // Sprites: the "Sprite bekerja" pill (aina's background helpers), kept quiet until they are announced
 };
 // Trying a hidden feature: ?fitur=ask,dictation turns those on in this tab only.
 for (const f of (new URLSearchParams(location.search).get('fitur') || '').split(',')) if (f in FEATURES) FEATURES[f] = true;
@@ -4171,7 +4172,7 @@ class Playground extends Component {
         : { ...it, label: this.dk ? 'Selesaikan dikte' : 'Coba dikte', hint: 'atau Ctrl + Win', onClick: () => this.dikteClick() }),
       utilItems: FEATURES.clipboard ? [...util, ...(v.utilItems || []).filter((_, i) => i !== 0 && i !== 3)] : util,
       pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)).map((it, n) => ({ ...it, num: String(n + 1).padStart(2, '0') })),
-      baseItems: (v.baseItems || []).filter((it) => (FEATURES.parcel || !/paket|kurir/i.test(it.label)) && (FEATURES.tasks || !/bekerja/i.test(it.label))),
+      baseItems: (v.baseItems || []).filter((it) => (FEATURES.parcel || !/paket|kurir/i.test(it.label)) && (FEATURES.sprites || !/sprite/i.test(it.label))),
       nCls: cls, nW: w,
       nStyle: `--w:${w}px;--h:${size[1]}px;--r:${size[2]}px;--ear:${size[3]}px;--glow:${glow};--glow-text:${glow === '#2b8aff' ? '#5aa9ff' : glow};--s:${scale}`,
       miniCls: `mini kind-${kind} phase-work${kind === 'music' && s.playing ? ' music' : ''}${lyric ? ' lyric' : ''}${kind === 'timer' && !s.timerRunning ? ' paused' : ''}`,
