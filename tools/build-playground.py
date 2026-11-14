@@ -91,11 +91,16 @@ AGENTS = [('Nilo', 'General'), ('Ciro', 'Dev')]
 for old_name, new_name in AGENTS:
     template = re.sub(r'\b%s\b' % old_name, new_name, template)
     logic = re.sub(r'\b%s\b' % old_name, new_name, logic)
-# Edits to the design's logic: Ctrl + Alt only with FEATURES.ask; the install steps name no version and
-# no Ctrl + Alt.
+# Edits to the design's logic: the talk and dictation keys go through hotkeyDown/Up (playground-notch.js:
+# Ctrl + Alt with FEATURES.ask, Ctrl + Win with FEATURES.dictation, as aina-notch reads them); the
+# install steps name no version and no Ctrl + Alt.
 LOGIC_EDITS = [
-    ("if ((e.key === 'Control' || e.key === 'Alt') && e.ctrlKey && e.altKey && !e.repeat)",
-     "if (FEATURES.ask && (e.key === 'Control' || e.key === 'Alt') && e.ctrlKey && e.altKey && !e.repeat)"),
+    ("if ((e.key === 'Control' || e.key === 'Alt') && e.ctrlKey && e.altKey && !e.repeat) { e.preventDefault(); this.holdStart(); }",
+     "this.hotkeyDown(e);"),
+    ("this.onKeyUp = (e) => { if (e.key === 'Control' || e.key === 'Alt') this.holdEnd(); };", "this.onKeyUp = (e) => this.hotkeyUp(e);"),
+    ("this.onBlur = () => this.holdEnd();", "this.onBlur = () => this.hotkeyBlur();"),
+    # Dictating (mode dikteRec) is the notch's own view; the design's notch sizes need an entry for it.
+    ("    const dims = {\n", "    const dims = { dikteRec: [600, 72, 26],\n"),
     ("['1', 'Buka aina-setup-1.0.0.exe',", "['1', 'Buka installer aina (.exe)',"),
     ("['3', 'Tahan Ctrl + Alt, lalu bicara', 'aina melihat layarmu dan menunjuk tempatnya.']",
      "['3', 'Arahkan kursor ke notch', 'Notch di atas layar terbuka saat kursor mendekat.']"),
