@@ -86,7 +86,7 @@ button{font-family:inherit}
   .pg-hint { top: 34px !important; left: 12px !important; right: 12px !important; transform: none !important; display: flex; justify-content: center; }
   .pg-hint > div > span { white-space: normal !important; text-align: center; }
 }
-/* No keyboard or mouse: the Ctrl + Alt chip and "move the pointer" hint don't apply; tap the notch,
+/* No keyboard or mouse: the Ctrl + Win chip and "move the pointer" hint don't apply; tap the notch,
    or use "Tahan untuk bertanya" in the panel. */
 @media (hover: none) {
   /* Nothing to hover: the icons stay out, so the pages can be told apart and tapped. */
