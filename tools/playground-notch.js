@@ -10,10 +10,20 @@ const FEATURES = {
   privacy: false, // the mic and screen dots, "don't look at this app", undo, quiet mode, the Privacy page
   clipboard: false, // what a copied number, phone number or tracking number offers (terbilang, WA, resi)
   parcel: false, // the "parcel on its way" pill
+  ask: false, // Tanya layar: hold Ctrl + Alt (or the button) and ask about the screen
+  library: false, // the Notes & knowledge page
+  dictation: false, // Dikte: tap or hold Ctrl + Win to dictate a note (as aina-notch's dictation.rs)
 };
+// Trying a hidden feature: ?fitur=ask,dictation turns those on in this tab only.
+for (const f of (new URLSearchParams(location.search).get('fitur') || '').split(',')) if (f in FEATURES) FEATURES[f] = true;
+// Dictation's timings, as in aina-notch (dictation.rs): released sooner than TAP the press only
+// switched dictation on; shorter than MIN in all it is dropped; it ends by itself after MAX.
+const DK_TAP_MS = 600, DK_MIN_MS = 350, DK_MAX_S = 600;
 // The notch's pages, by their index in Playground.pages, and the feature a page needs.
-const PAGE_FEATURE = { 8: 'privacy', 9: 'whatsapp' };
+const PAGE_FEATURE = { 6: 'library', 8: 'privacy', 9: 'whatsapp' };
 const pageOn = (i) => !PAGE_FEATURE[i] || FEATURES[PAGE_FEATURE[i]];
+// Parts of the design's own page (not the notch) hidden while their feature is off: .no-ask in playground.css.
+if (!FEATURES.ask) document.documentElement.classList.add('no-ask');
 // What each page is in aina-notch (island.js): its id, its color (the glow) and its dot's icon.
 const NPAGES = [
   { id: 'home', k: '#2b8aff', icon: ['home', 'home'] },
@@ -61,6 +71,113 @@ function ringNode(size, width, left) {
 const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
 
 // ---- class members ----
+
+  // ---- The talk and dictation keys, as aina-notch reads them (aina-input hotkeys.rs, talk.rs) ----
+  // Ctrl + Alt asks while held (FEATURES.ask); Ctrl + Win dictates (FEATURES.dictation). Asking is never
+  // Ctrl + Win. A combo counts only when exactly its modifiers are down; a real key pressed during a
+  // hold means a shortcut, not talking, and cancels it; Esc stops everything.
+  comboOf(e) {
+    if (e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey) return 'ask';
+    if (e.ctrlKey && e.metaKey && !e.altKey && !e.shiftKey) return 'dikte';
+    return '';
+  }
+  hotkeyDown(e) {
+    if (e.key === 'Escape') return; // escape() has it
+    if (!['Control', 'Alt', 'Meta', 'Shift', 'AltGraph'].includes(e.key)) {
+      if (this.keysHeld === 'ask') { this.keysHeld = ''; this.escape(); }
+      else if (this.keysHeld === 'dikte') { this.keysHeld = ''; this.dikteCancel(); }
+      return;
+    }
+    if (e.repeat || this.keysHeld) return;
+    const combo = this.comboOf(e);
+    if (combo === 'ask' && FEATURES.ask) { e.preventDefault(); this.keysHeld = 'ask'; this.holdStart(); }
+    if (combo === 'dikte' && FEATURES.dictation) { e.preventDefault(); this.keysHeld = 'dikte'; this.dikteDown(); }
+  }
+  hotkeyUp(e) {
+    const held = this.keysHeld;
+    if (!held || !(held === 'ask' ? ['Control', 'Alt'] : ['Control', 'Meta']).includes(e.key)) return;
+    this.keysHeld = '';
+    if (held === 'ask') this.holdEnd(); else this.dikteUp();
+  }
+  hotkeyBlur() {
+    const held = this.keysHeld;
+    this.keysHeld = '';
+    if (held === 'dikte') this.dikteUp();
+    else this.holdEnd();
+  }
+  // Asking. Pressed while a dictation runs, the talk keys only end (and save) it: that press is not a
+  // question, and neither is its release.
+  holdStart = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (this.dk) { this.askEndsDikte = true; this.dikteStop(); return; }
+    if (this.state.holding) return;
+    this.clear();
+    this.setState({ mode: 'turn', phase: 0, typed: 0, holding: true, dlOpen: false });
+    this.later(() => this.holdEnd(), 12000);
+  };
+  holdEnd = () => {
+    if (this.askEndsDikte) { this.askEndsDikte = false; return; }
+    if (!this.state.holding) return;
+    this.clear();
+    this.setState({ holding: false, mode: 'turn', phase: 1 });
+    this.later(() => this.setState({ phase: 2 }), 1200);
+    this.later(() => this.startAnswer(), 2600);
+    this.later(() => this.toBase(), 13000);
+  };
+  // Esc drops a dictation too (it is not saved).
+  escape = () => {
+    this.keysHeld = '';
+    this.askEndsDikte = false;
+    this.dikteCancel(false);
+    this.setState({ holding: false });
+    this.toBase();
+  };
+  // Dictating (dictation.rs). The keys down: start, or end the one running. Not while asking.
+  dikteDown() {
+    if (this.state.holding) return;
+    if (this.dk) { this.dkSkipUp = true; this.dikteStop(); return; }
+    this.clear();
+    this.dk = { at: Date.now() };
+    this.setState({ mode: 'dikteRec', dkPhase: 'rec', dkSec: 0, dkHeld: true, typed: 0, dlOpen: false });
+    clearInterval(this.dkIv);
+    this.dkIv = setInterval(() => {
+      if (!this.dk || this.state.mode !== 'dikteRec') return this.dikteCancel(false);
+      const sec = Math.floor((Date.now() - this.dk.at) / 1000);
+      if (sec >= DK_MAX_S) return this.dikteStop();
+      if (sec !== this.state.dkSec) this.setState({ dkSec: sec });
+    }, 250);
+  }
+  // The keys released: a hold ends there; a quick press leaves it running.
+  dikteUp() {
+    if (this.dkSkipUp) { this.dkSkipUp = false; return; }
+    if (!this.dk) return;
+    if (Date.now() - this.dk.at >= DK_TAP_MS) this.dikteStop();
+    else this.setState({ dkHeld: false });
+  }
+  // Ends and saves it: written up, then the saved note.
+  dikteStop() {
+    if (!this.dk) return;
+    const held = Date.now() - this.dk.at;
+    this.dk = null;
+    clearInterval(this.dkIv);
+    if (held < DK_MIN_MS) return this.toBase();
+    this.clear();
+    this.setState({ mode: 'dikteRec', dkPhase: 'write', dkHeld: false });
+    this.later(() => this.moment('dikte'), 1400);
+  }
+  dikteCancel(toBase = true) {
+    this.dkSkipUp = false;
+    if (!this.dk) return;
+    this.dk = null;
+    clearInterval(this.dkIv);
+    if (toBase) this.toBase();
+  }
+  // The panel's button: a click is a tap.
+  dikteClick() {
+    if (this.dk) return this.dikteStop();
+    this.dikteDown();
+    if (this.dk) this.setState({ dkHeld: false });
+  }
 
   // The pages shown (those whose feature is on), and paging within them, stopping at either end as
   // the notch does.
@@ -189,7 +306,10 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
     const lyrics = ['Lampu jalan mulai menyala', 'kita pulang lewat jalan yang sama', 'angin sore bawa kabar lama', 'pelan-pelan semua jadi biasa'];
     const li = Math.floor(s.musicPos / 6) % 4;
     // The view, as island.js names it.
-    const view = { ask: 'turn', notice: 'panel', dikte: 'panel', kredit: 'panel' }[mode] || mode;
+    const view = { ask: 'turn', dikteRec: 'turn', notice: 'panel', dikte: 'panel', kredit: 'panel' }[mode] || mode;
+    // Dictating: "Mendikte…" in orange while it listens, as island.js shows it (I.mode 'dictation').
+    const dikteRec = mode === 'dikteRec';
+    const dikteListening = dikteRec && s.dkPhase === 'rec';
     const waiting = mode === 'ask';
     const answering = mode === 'turn' && s.phase === 3;
     // Panels: what main would send for each moment.
@@ -207,7 +327,7 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
     // The mini pill: what is going on, most pressing first.
     const kind = { timer: 'timer', task: 'agents', focus: 'focus', music: 'music' }[s.mini] || 'timer';
     const lyric = kind === 'music' && s.setLyrics !== false ? lyrics[li] : '';
-    const [miniText, miniSub] = kind === 'agents' ? ['Ciro bekerja', '+1'] : kind === 'timer' ? [mmss(s.timerLeft), s.timerRunning ? 'Fokus' : fresh ? 'Siap' : 'Dijeda']
+    const [miniText, miniSub] = kind === 'agents' ? ['Dev bekerja', '+1'] : kind === 'timer' ? [mmss(s.timerLeft), s.timerRunning ? 'Fokus' : fresh ? 'Siap' : 'Dijeda']
       : kind === 'focus' ? ['aina-landing', '42 mnt'] : [lyric || 'Senja di Kota', lyric ? '' : 'Nadira'];
     const textW = (t, px) => t.length * px;
     const miniW = Math.max(264, 66 + (kind === 'timer' ? 26 : kind === 'focus' ? 24 : kind === 'agents' ? 16 : 0) + textW(miniText, kind === 'music' ? 7.1 : 7.4) + (miniSub ? 8 + textW(miniSub, 6) : 0));
@@ -222,7 +342,7 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
       : waiting ? [600, 150, 26, 14]
       : answering ? [600, 132, 26, 14]
       : [600, 72, 26, 14];
-    const glow = waiting ? '#ff8a3d'
+    const glow = waiting || dikteListening ? '#ff8a3d'
       : view === 'peek' ? (NPAGES[s.page] || NPAGES[0]).k
       : view === 'mini' ? { timer: '#ff8a3d', music: '#a78bfa', agents: '#f5a524', focus: '#3ddc97' }[kind]
       : view === 'panel' && inPanel.kind === 'credits' ? '#ffb27a'
@@ -232,14 +352,15 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
     const open = view !== 'rest' && view !== 'mini';
     const cls = ['pg-notch', 'here', 'has-face', 'hover', open && 'open', 'mode-' + view, (answering || waiting) && 'expanded',
       (waiting || view === 'panel' || view === 'drop') && 'has-panel', waiting && 'waiting', panelSub && 'panel-sub', panelCompact && 'panel-compact',
-      view === 'mini' && kind === 'music' && s.playing && 'mini-music'].filter(Boolean).join(' ');
+      view === 'mini' && kind === 'music' && s.playing && 'mini-music', dikteListening && 'dictation'].filter(Boolean).join(' ');
     const w = size[0];
     // The turn row.
     const PH = ['Mendengar…', 'Melihat area…', 'Berpikir…', 'Menjawab…'];
-    const rowLabel = waiting ? 'Butuh izinmu' : view === 'panel' ? inPanel.title : PH[s.phase] || 'aina';
-    const you = waiting ? 'Jawab dengan suara, Enter, atau Esc' : view === 'panel' ? (panelSub ? inPanel.lines[0] : '') : mode === 'turn' ? '“gimana cara kasih warna otomatis ke sel yang di bawah target?”' : '';
-    const say = waiting ? 'Aku mau hapus kalkulator.html dari folder aina ke Recycle Bin. Boleh?' : this.answer.slice(0, s.typed);
-    const waveKind = mode === 'turn' ? ['mic', 'think', 'think', 'voice'][s.phase] : waiting ? 'mic' : '';
+    const rowLabel = dikteRec ? (dikteListening ? 'Mendikte… ' + mss(s.dkSec || 0) : 'Oke…') : waiting ? 'Butuh izinmu' : view === 'panel' ? inPanel.title : PH[s.phase] || 'aina';
+    const you = dikteRec ? (!dikteListening ? '' : s.dkHeld ? 'Lepas untuk selesai' : 'Tekan Ctrl + Win lagi untuk selesai · Esc batal')
+      : waiting ? 'Jawab dengan suara, Enter, atau Esc' : view === 'panel' ? (panelSub ? inPanel.lines[0] : '') : mode === 'turn' ? '“gimana cara kasih warna otomatis ke sel yang di bawah target?”' : '';
+    const say = dikteRec ? '' : waiting ? 'Aku mau hapus kalkulator.html dari folder aina ke Recycle Bin. Boleh?' : this.answer.slice(0, s.typed);
+    const waveKind = dikteRec ? (dikteListening ? 'mic' : 'think') : mode === 'turn' ? ['mic', 'think', 'think', 'voice'][s.phase] : waiting ? 'mic' : '';
     const waveBars = Array.from({ length: 18 }, (_, i) => {
       const center = 1 - Math.abs(i - 8.5) / 9;
       return `--a:${(0.35 + 0.6 * center).toFixed(2)};animation-delay:-${((i * 0.137) % 0.9).toFixed(2)}s`;
@@ -268,8 +389,11 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
     return {
       legacyNotch: legacy, nOn: !legacy,
       fLearn: FEATURES.learn, fWa: FEATURES.whatsapp, fPrivacy: FEATURES.privacy,
+      // With FEATURES.dictation the "Dikte tersimpan" moment becomes a real dictation to try.
+      momentItems: (v.momentItems || []).map((it) => it.label !== 'Dikte tersimpan' || !FEATURES.dictation ? it
+        : { ...it, label: this.dk ? 'Selesaikan dikte' : 'Coba dikte', hint: 'atau Ctrl + Win', onClick: () => this.dikteClick() }),
       utilItems: FEATURES.clipboard ? [...util, ...(v.utilItems || []).filter((_, i) => i !== 0 && i !== 3)] : util,
-      pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)),
+      pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)).map((it, n) => ({ ...it, num: String(n + 1).padStart(2, '0') })),
       baseItems: (v.baseItems || []).filter((it) => FEATURES.parcel || !/paket|kurir/i.test(it.label)),
       nCls: cls, nW: w,
       nStyle: `--w:${w}px;--h:${size[1]}px;--r:${size[2]}px;--ear:${size[3]}px;--glow:${glow};--glow-text:${glow === '#2b8aff' ? '#5aa9ff' : glow};--s:${scale}`,

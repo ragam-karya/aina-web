@@ -54,6 +54,8 @@ button{font-family:inherit}
 .hv35:hover{background:#eef3fb !important;color:#061334 !important}
 .hv36:hover{background:#0B4FB3 !important}
 
+/* Features of the design's page that are off (FEATURES in tools/playground-notch.js) */
+.no-ask .pg-hold,.no-ask .pg-ask{display:none !important}
 /* The notch's page indicator, as in aina-notch (overlay.html: .peek .dots). */
 .pg-dots { display: flex; justify-content: center; padding-top: 7px; --slot: 14px; --pop: cubic-bezier(.34, 1.5, .6, 1); }
 .pg-dots:hover { --slot: 30px; }
