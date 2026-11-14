@@ -10,9 +10,9 @@ const FEATURES = {
   privacy: false, // the mic and screen dots, "don't look at this app", undo, quiet mode, the Privacy page
   clipboard: false, // what a copied number, phone number or tracking number offers (terbilang, WA, resi)
   parcel: false, // the "parcel on its way" pill
-  ask: false, // Tanya layar: hold Ctrl + Alt (or the button) and ask about the screen
+  ask: false, // Tanya layar: hold Ctrl + Win (or the button) and ask about the screen
   library: false, // the Notes & knowledge page
-  dictation: false, // Dikte: tap or hold Ctrl + Win to dictate a note (as aina-notch's dictation.rs)
+  dictation: false, // Dikte: tap or hold Ctrl + Alt to dictate a note (as aina-notch's dictation.rs)
   sprites: false, // Sprites: the "Sprite bekerja" pill (aina's background helpers), kept quiet until they are announced
 };
 // Trying a hidden feature: ?fitur=ask,dictation turns those on in this tab only.
@@ -74,12 +74,12 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
 // ---- class members ----
 
   // ---- The talk and dictation keys, as aina-notch reads them (aina-input hotkeys.rs, talk.rs) ----
-  // Ctrl + Alt asks while held (FEATURES.ask); Ctrl + Win dictates (FEATURES.dictation). Asking is never
-  // Ctrl + Win. A combo counts only when exactly its modifiers are down; a real key pressed during a
+  // Ctrl + Win asks while held (FEATURES.ask); Ctrl + Alt dictates (FEATURES.dictation). The two never
+  // share keys. A combo counts only when exactly its modifiers are down; a real key pressed during a
   // hold means a shortcut, not talking, and cancels it; Esc stops everything.
   comboOf(e) {
-    if (e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey) return 'ask';
-    if (e.ctrlKey && e.metaKey && !e.altKey && !e.shiftKey) return 'dikte';
+    if (e.ctrlKey && e.metaKey && !e.altKey && !e.shiftKey) return 'ask';
+    if (e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey) return 'dikte';
     return '';
   }
   hotkeyDown(e) {
@@ -96,7 +96,7 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
   }
   hotkeyUp(e) {
     const held = this.keysHeld;
-    if (!held || !(held === 'ask' ? ['Control', 'Alt'] : ['Control', 'Meta']).includes(e.key)) return;
+    if (!held || !(held === 'ask' ? ['Control', 'Meta'] : ['Control', 'Alt']).includes(e.key)) return;
     this.keysHeld = '';
     if (held === 'ask') this.holdEnd(); else this.dikteUp();
   }
@@ -358,7 +358,7 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
     // The turn row.
     const PH = ['Mendengar…', 'Melihat area…', 'Berpikir…', 'Menjawab…'];
     const rowLabel = dikteRec ? (dikteListening ? 'Mendikte… ' + mss(s.dkSec || 0) : 'Oke…') : waiting ? 'Butuh izinmu' : view === 'panel' ? inPanel.title : PH[s.phase] || 'aina';
-    const you = dikteRec ? (!dikteListening ? '' : s.dkHeld ? 'Lepas untuk selesai' : 'Tekan Ctrl + Win lagi untuk selesai · Esc batal')
+    const you = dikteRec ? (!dikteListening ? '' : s.dkHeld ? 'Lepas untuk selesai' : 'Tekan Ctrl + Alt lagi untuk selesai · Esc batal')
       : waiting ? 'Jawab dengan suara, Enter, atau Esc' : view === 'panel' ? (panelSub ? inPanel.lines[0] : '') : mode === 'turn' ? '“gimana cara kasih warna otomatis ke sel yang di bawah target?”' : '';
     const say = dikteRec ? '' : waiting ? 'Aku mau hapus kalkulator.html dari folder aina ke Recycle Bin. Boleh?' : this.answer.slice(0, s.typed);
     const waveKind = dikteRec ? (dikteListening ? 'mic' : 'think') : mode === 'turn' ? ['mic', 'think', 'think', 'voice'][s.phase] : waiting ? 'mic' : '';
@@ -392,7 +392,7 @@ const withIcon = (name, text, size = 15) => [nIcon(name, size), ' ' + text];
       fLearn: FEATURES.learn, fWa: FEATURES.whatsapp, fPrivacy: FEATURES.privacy,
       // With FEATURES.dictation the "Dikte tersimpan" moment becomes a real dictation to try.
       momentItems: (v.momentItems || []).map((it) => it.label !== 'Dikte tersimpan' || !FEATURES.dictation ? it
-        : { ...it, label: this.dk ? 'Selesaikan dikte' : 'Coba dikte', hint: 'atau Ctrl + Win', onClick: () => this.dikteClick() }),
+        : { ...it, label: this.dk ? 'Selesaikan dikte' : 'Coba dikte', hint: 'atau Ctrl + Alt', onClick: () => this.dikteClick() }),
       utilItems: FEATURES.clipboard ? [...util, ...(v.utilItems || []).filter((_, i) => i !== 0 && i !== 3)] : util,
       pageItems: (v.pageItems || []).filter((_, i) => pageOn(i)).map((it, n) => ({ ...it, num: String(n + 1).padStart(2, '0') })),
       baseItems: (v.baseItems || []).filter((it) => (FEATURES.parcel || !/paket|kurir/i.test(it.label)) && (FEATURES.sprites || !/sprite/i.test(it.label))),

@@ -209,7 +209,7 @@
     const acur = q('[data-acur]'), tip = q('[data-tip]'), ucur = q('[data-ucur]'), knob = q('[data-knob]');
     const tabs = $$('[data-tab]'), fills = $$('[data-tabfill]'), keys = $$('[data-key]', demo);
     const caption = $('[data-caption]');
-    const CAPTIONS = ['Tanya layar · tahan Ctrl + Alt', 'Panduan · kursor biru menunjuk', 'Kerjakan untukku · selalu minta izin'];
+    const CAPTIONS = ['Tanya layar · tahan Ctrl + Win', 'Panduan · kursor biru menunjuk', 'Kerjakan untukku · selalu minta izin'];
     const at = (el, dx, dy) => pos(el, dx, dy, demo);
     let tl, nextT, step = 0, visible = true;
 
