@@ -43,7 +43,7 @@ const FEATURES = {
   privacy: false, // the mic and screen dots, "don't look at this app", undo, quiet mode, the Privacy page
   clipboard: false, // what a copied number, phone number or tracking number offers (terbilang, WA, resi)
   parcel: false, // the "parcel on its way" pill
-  ask: false, // Tanya layar: hold Ctrl + Win (or the button) and ask about the screen
+  ask: true, // Tanya layar: hold Ctrl + Win (or the button) and ask about the screen
   library: false, // the Notes & knowledge page
   tasks: false, // the Tugas page
   dictation: false, // Dikte: tap or hold Ctrl + Alt to dictate a note (as aina-notch's dictation.rs)
